@@ -1,0 +1,27 @@
+﻿
+commands:
+
+	dotnet ef migrations add InitialCreate  
+			or  
+			dotnet ef migrations add NewMigration --project MyApp.Migrations
+			or  powershell
+			Add-Migration InitialCreate -OutputDir Data/Migrations
+	dotnet ef database update
+			or
+			update-database
+
+comments:
+
+	-commented the columns default values in the Inventory.Store because the default values depend on functions that haven't been created; a separate migration will be added for them.
+	-changed the Photo data types in core.Office, hrm.Employee, Inventory.Item, Inventory.Supplier, and inventory.Customer
+	-
+	-For the migration finance_2.0_03.menus to work these procedures and functions that belong to the core and auth modules had been added
+		Functions: core.split, core.get_office_id_by_office_name
+		Procedures: core.create_menu2, core.create_menu, core.create_app, 
+					auth.save_group_menu_policy, auth.create_app_menu_policy
+	-For the migration finance_20_04defaultvalues to work the normally_debit column of the master accounts (Balance Sheet, Profit & Loss,Off Balance Sheet) have been set to 0; this
+		might not be necessary but it is required by the table structure
+	- For the migration finance_20_04defaultvalues a record of USD has been added to the core.Currencies ; so caution shoud be given when pobulating that table (core.Currencies)
+	-For the migration finance_20_05scrudviews to work these functions that belong to the core and account modules had been added
+		Functions: account.get_name_by_user_id, core.get_office_name_by_office_id
+	-For the migration finance_20_99sampledata default office has been added

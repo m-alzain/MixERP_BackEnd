@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Entities\AddressBook\" />
+    <Folder Include="Entities\Auth\" />
+    <Folder Include="Entities\Calendar\" />
+    <Folder Include="Entities\Config\" />
+    <Folder Include="Entities\Website\" />
+    <Folder Include="Entities\Social\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+</Project>
