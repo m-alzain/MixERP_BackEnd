@@ -18,6 +18,8 @@ using Attribute = ApplicationCore.Entities.Inventory.Attribute;
 using Infrastructure.Data.Configurations.Inventory;
 using Infrastructure.Data.Configurations.Hrm;
 using Infrastructure.Data.Configurations.Core;
+using ApplicationCore.Queries;
+using ApplicationCore.Queries.Forms;
 
 namespace Infrastructure.Data
 {
@@ -190,6 +192,12 @@ namespace Infrastructure.Data
         public virtual DbSet<VerificationStatus> VerificationStatuses { get; set; }
         public virtual DbSet<WeekDay> WeekDays { get; set; }
         public virtual DbSet<WeekDay1> WeekDays1 { get; set; }
+
+        // Queries
+        public virtual DbQuery<PrimitiveQuery<decimal>> DecimalQuery { get; set; }
+        public virtual DbQuery<EntityColumnQuery> EntityColumnQuery { get; set; }
+        public virtual DbQuery<ApplicationCore.Queries.Finance.JournalViewQuery> JournalViewQuery { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
