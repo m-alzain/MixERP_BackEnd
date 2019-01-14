@@ -90,5 +90,23 @@ namespace Web.Controllers.Api.Finance
             }
         }
 
+        // V2 Code       
+        [Route("finance/tasks/journal/view")]
+        [HttpPost]
+        public async Task<ActionResult<List<JournalEntryDto>>> GetJournalEntriesAsync()
+        {
+            //var appUser = await AppUsers.GetCurrentAsync().ConfigureAwait(true);            
+
+            try
+            {
+                var model = await _journalService.GetJournalEntriesAsync(null);
+                return model;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
     }
 }

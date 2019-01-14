@@ -119,5 +119,12 @@ namespace Infrastructure.Data
             _dbContext.Set<T>().Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+
+        // V2 Code 
+        public IQueryable<T> ListAllQueryable()
+        {
+            return _dbContext.Set<T>();
+        }
     }
 }

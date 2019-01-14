@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Entities;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ApplicationCore.Interfaces
 {
@@ -12,5 +13,8 @@ namespace ApplicationCore.Interfaces
         T Add(T entity);
         void Update(T entity);
         void Delete(T entity);
+
+        // V2 Code
+        IQueryable<T> ListAllQueryable();
     }
 }

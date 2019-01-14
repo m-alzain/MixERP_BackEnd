@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.Finance;
 using ApplicationCore.Interfaces.Forms;
+using ApplicationCore.Mapping.Finance;
 using ApplicationCore.Services.Finance;
 using ApplicationCore.Services.Forms;
+using AutoMapper;
 using Infrastructure.Data;
 using Infrastructure.Data.Finance;
 using Infrastructure.Data.Forms;
@@ -19,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Web.Services;
+using Web.Extensions;
 
 namespace Web
 {
@@ -64,8 +68,11 @@ namespace Web
             services.AddScoped<EntityViews>();
 
 
+            var mappingAssemply = typeof(JournalEntryMappingProfile).Assembly;
+            services.ConfigureAutoMapper(new[] { mappingAssemply });
+            
             services.AddCors();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

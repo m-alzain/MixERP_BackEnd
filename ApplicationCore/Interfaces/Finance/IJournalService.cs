@@ -12,5 +12,10 @@ namespace ApplicationCore.Interfaces.Finance
     {
         Task<long> VerifyTransactionAsync(string tenant, Verification model);
         Task<List<JournalView>> GetJournalViewAsync(string tenant, JournalViewQuery query);
+
+
+
+        // V2 code
+        Task<List<JournalEntryDto>> GetJournalEntriesAsync(JournalViewQuery query);
     }
 }
