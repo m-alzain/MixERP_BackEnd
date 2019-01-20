@@ -8,6 +8,7 @@ namespace Web.Controllers.Api
 {
     //[Route("api/[controller]/[action]")]
     //[Route("api/[controller]")]
+    [Route("api")]
     public class BaseApiController : Controller
     {
     }

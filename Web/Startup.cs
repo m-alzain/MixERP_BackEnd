@@ -5,14 +5,14 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.Finance;
-using ApplicationCore.Interfaces.Forms;
+//using ApplicationCore.Interfaces.Forms;
 using ApplicationCore.Mapping.Finance;
-using ApplicationCore.Services.Finance;
-using ApplicationCore.Services.Forms;
+//using ApplicationCore.Services.Finance;
+//using ApplicationCore.Services.Forms;
 using AutoMapper;
 using Infrastructure.Data;
-using Infrastructure.Data.Finance;
-using Infrastructure.Data.Forms;
+//using Infrastructure.Data.Finance;
+//using Infrastructure.Data.Forms;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,8 +21,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Web.Services;
+//using Web.Services;
 using Web.Extensions;
+using Newtonsoft.Json.Serialization;
+using ApplicationCore.Interfaces.Accounts;
+using ApplicationCore.Services.Accounts;
 
 namespace Web
 {
@@ -53,26 +56,28 @@ namespace Web
 
 
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-            services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
-            services.AddScoped(typeof(IAccountRepository), typeof(AccountRepository));
-            services.AddScoped(typeof(ICommandRepository), typeof(CommandRepository));
-            services.AddScoped(typeof(ITransactionPostingService), typeof(TransactionPostingService));
-            services.AddScoped(typeof(IAccountService), typeof(AccountService));
-            services.AddScoped(typeof(ICashRepositoryService), typeof(CashRepositoryService));
-            services.AddScoped<JournalEntries>();
+            //services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
+            services.AddScoped(typeof(IUserService), typeof(UserService));
+            //services.AddScoped(typeof(IAccountRepository), typeof(AccountRepository));
+            //services.AddScoped(typeof(ICommandRepository), typeof(CommandRepository));
+            //services.AddScoped(typeof(ITransactionPostingService), typeof(TransactionPostingService));
+            //services.AddScoped(typeof(IAccountService), typeof(AccountService));
+            //services.AddScoped(typeof(ICashRepositoryService), typeof(CashRepositoryService));
+            //services.AddScoped<JournalEntries>();
 
-            services.AddScoped(typeof(IJournalService), typeof(JournalService));
+            //services.AddScoped(typeof(IJournalService), typeof(JournalService));
 
-            services.AddScoped(typeof(IFormRepository), typeof(FormRepository));
+            //services.AddScoped(typeof(IFormRepository), typeof(FormRepository));
             //services.AddScoped<EntityView>();
-            services.AddScoped<EntityViews>();
+            //services.AddScoped<EntityViews>();
 
 
             var mappingAssemply = typeof(JournalEntryMappingProfile).Assembly;
             services.ConfigureAutoMapper(new[] { mappingAssemply });
             
             services.AddCors();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver()); // If you need/want all of the JSON output to be in PascalCase
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

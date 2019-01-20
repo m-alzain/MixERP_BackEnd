@@ -24,6 +24,9 @@ namespace Contracts.Finance.DTO
         public int OfficeId { get; set; }
         public int? AuditUserId { get; set; }
         public DateTimeOffset? AuditTs { get; set; }
-        
+
+
+        public string Account { get; set; }
+
     }
 }

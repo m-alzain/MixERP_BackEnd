@@ -29,6 +29,13 @@ namespace Contracts.Finance.DTO
         public DateTimeOffset? AuditTs { get; set; }
         public bool? Deleted { get; set; }
         
-        public ICollection<JournalEntryLineDto> JournalEntryLines { get; set; }        
+        public ICollection<JournalEntryLineDto> JournalEntryLines { get; set; }
+
+
+
+        public string CostCenter { get; set; }
+        public string Office { get; set; }
+        public string Status { get; set; }
+        public string VerifiedByUser { get; set; }
     }
 }

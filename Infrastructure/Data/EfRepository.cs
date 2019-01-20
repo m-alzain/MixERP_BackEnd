@@ -4,6 +4,7 @@ using ApplicationCore.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace Infrastructure.Data
 {
@@ -12,7 +13,7 @@ namespace Infrastructure.Data
     /// https://blogs.msdn.microsoft.com/pfxteam/2012/04/13/should-i-expose-synchronous-wrappers-for-asynchronous-methods/
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class EfRepository<T> : IRepository<T>, IAsyncRepository<T> where T : class //BaseEntity
+    public class EfRepository<T> : IRepository<T> where T : class //BaseEntity
     {
         protected readonly SqlserverContext _dbContext;
 
@@ -21,9 +22,19 @@ namespace Infrastructure.Data
             _dbContext = dbContext;
         }
 
-        public virtual T GetById(int id)
+        //public async virtual Task<T> GetByIdAsync(int id)
+        //{
+        //    return await _dbContext.Set<T>().FindAsync(id);
+        //}
+
+        public async virtual Task<T> GetByIdAsync(Guid id)
         {
-            return _dbContext.Set<T>().Find(id);
+            return await _dbContext.Set<T>().FindAsync(id);
+        }
+
+        public async virtual Task<T> GetByIdAsync(string id)
+        {
+            return await GetByIdAsync(Guid.Parse(id));
         }
 
         public T GetSingleBySpec(ISpecification<T> spec)
@@ -31,23 +42,12 @@ namespace Infrastructure.Data
             return List(spec).FirstOrDefault();
         }
 
-
-        public virtual async Task<T> GetByIdAsync(int id)
+        public IQueryable<T> List()
         {
-            return await _dbContext.Set<T>().FindAsync(id);
+            return _dbContext.Set<T>();
         }
 
-        public IEnumerable<T> ListAll()
-        {
-            return _dbContext.Set<T>().AsEnumerable();
-        }
-
-        public async Task<List<T>> ListAllAsync()
-        {
-            return await _dbContext.Set<T>().ToListAsync();
-        }
-
-        public IEnumerable<T> List(ISpecification<T> spec)
+        public IQueryable<T> List(ISpecification<T> spec)
         {
             // fetch a Queryable that includes all expression-based includes
             var queryableResultWithIncludes = spec.Includes
@@ -55,76 +55,35 @@ namespace Infrastructure.Data
                     (current, include) => current.Include(include));
 
             // modify the IQueryable to include any string-based include statements
+            // https://docs.microsoft.com/en-us/dotnet/api/system.data.objects.objectquery-1.include?view=netframework-4.7.2&viewFallbackFrom=netcore-2.2
             var secondaryResult = spec.IncludeStrings
                 .Aggregate(queryableResultWithIncludes,
                     (current, include) => current.Include(include));
 
             // return the result of the query using the specification's criteria expression
             return secondaryResult
-                            .Where(spec.Criteria)
-                            .AsEnumerable();
-        }
-        public async Task<List<T>> ListAsync(ISpecification<T> spec)
-        {
-            // fetch a Queryable that includes all expression-based includes
-            var queryableResultWithIncludes = spec.Includes
-                .Aggregate(_dbContext.Set<T>().AsQueryable(),
-                    (current, include) => current.Include(include));
-
-            // modify the IQueryable to include any string-based include statements
-            var secondaryResult = spec.IncludeStrings
-                .Aggregate(queryableResultWithIncludes,
-                    (current, include) => current.Include(include));
-
-            // return the result of the query using the specification's criteria expression
-            return await secondaryResult
-                            .Where(spec.Criteria)
-                            .ToListAsync();
+                            .Where(spec.Criteria);
         }
 
         public T Add(T entity)
         {
-            _dbContext.Set<T>().Add(entity);
-            _dbContext.SaveChanges();
-
-            return entity;
-        }
-
-        public async Task<T> AddAsync(T entity)
-        {
-            _dbContext.Set<T>().Add(entity);
-            await _dbContext.SaveChangesAsync();
-
+            _dbContext.Set<T>().Add(entity);            
             return entity;
         }
 
         public void Update(T entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
-            _dbContext.SaveChanges();
-        }
-        public async Task UpdateAsync(T entity)
-        {
-            _dbContext.Entry(entity).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
         }
 
         public void Delete(T entity)
         {
             _dbContext.Set<T>().Remove(entity);
-            _dbContext.SaveChanges();
         }
-        public async Task DeleteAsync(T entity)
+              
+        public async Task SaveAsync()
         {
-            _dbContext.Set<T>().Remove(entity);
             await _dbContext.SaveChangesAsync();
-        }
-
-
-        // V2 Code 
-        public IQueryable<T> ListAllQueryable()
-        {
-            return _dbContext.Set<T>();
         }
     }
 }

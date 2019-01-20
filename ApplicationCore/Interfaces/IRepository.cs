@@ -1,20 +1,22 @@
 ﻿using ApplicationCore.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ApplicationCore.Interfaces
 {
     public interface IRepository<T> //where T : BaseEntity
     {
-        T GetById(int id);
+        //Task<T> GetByIdAsync(int id);
+        Task<T> GetByIdAsync(Guid id);
+        Task<T> GetByIdAsync(string id);
         T GetSingleBySpec(ISpecification<T> spec);
-        IEnumerable<T> ListAll();
-        IEnumerable<T> List(ISpecification<T> spec);
+        IQueryable<T> List();
+        IQueryable<T> List(ISpecification<T> spec);
         T Add(T entity);
         void Update(T entity);
         void Delete(T entity);
-
-        // V2 Code
-        IQueryable<T> ListAllQueryable();
+        Task SaveAsync();
     }
 }

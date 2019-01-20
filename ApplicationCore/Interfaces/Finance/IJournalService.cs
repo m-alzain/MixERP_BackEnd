@@ -1,6 +1,7 @@
 ﻿using Contracts.Finance.DTO;
 using Contracts.Finance.QueryModels;
 using Contracts.Finance.ViewModels;
+using Contracts.QueryModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,6 +17,6 @@ namespace ApplicationCore.Interfaces.Finance
 
 
         // V2 code
-        Task<List<JournalEntryDto>> GetJournalEntriesAsync(JournalViewQuery query);
+        Task<List<JournalEntryDto>> GetJournalEntriesAsync(EntryQuery query);
     }
 }
