@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using ApplicationCore.Entities.Accounts;
+using ApplicationCore.Entities.Auth;
 using ApplicationCore.Entities.Finance;
 //using System.Text;
 //using ApplicationCore.Entities.AddessBook;
@@ -19,12 +20,15 @@ using ApplicationCore.Entities.Finance;
 namespace ApplicationCore.Entities.Accounts
 {
     public class User : IEntity, IAuditable
-    {     
+    {
+        #region IEntity
+
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Guid Id { get; set; }
+
+        #endregion
+
         public string Email { get; set; }
-        //public Guid OfficeId { get; set; }
-        //public Guid RoleId { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
         public bool? Status { get; set; }
@@ -33,27 +37,23 @@ namespace ApplicationCore.Entities.Accounts
         public string LastBrowser { get; set; }     
         public bool? Deleted { get; set; }
 
-        //public Office Office { get; set; }
-        //public Role Role { get; set; }
-        //public Tenant Tenant { get; set; }
         
         public ICollection<OfficeUser> OfficeUsers { get; set; }
+        public ICollection<RoleUser> RoleUsers { get; set; }
 
-        //public FbAccessToken FbAccessTokenUser { get; set; }
-        //public GoogleAccessToken GoogleAccessTokenUser { get; set; }
-        //public ICollection<AccessToken> AccessTokenAuditUsers { get; set; }
-        //public ICollection<AccessToken> AccessTokenRevokedByNavigations { get; set; }
-        //public ICollection<AccessType> AccessTypes { get; set; }
-        //public ICollection<AccountMaster> AccountMasters { get; set; }
-
+      
         public ICollection<User> InverseCreatedUsers { get; set; }
         public ICollection<User> InverseUpdatedUsers { get; set; }
         public ICollection<Office> CreatedOffices { get; set; }
         public ICollection<Office> UpdatedOffices { get; set; }
         public ICollection<Tenant> CreatedTenants { get; set; }
         public ICollection<Tenant> UpdatedTenants { get; set; }
+        public ICollection<Role> CreatedRoles { get; set; }
+        public ICollection<Role> UpdatedRoles { get; set; }
+        public ICollection<GroupEntityAccessPolicy> CreatedGroupEntityAccessPolicies { get; set; }
+        public ICollection<GroupEntityAccessPolicy> UpdatedGroupEntityAccessPolicies { get; set; }
 
-        #region Audit
+        #region IAuditable
 
         public Guid? CreatedByUserId { get; set; }
         public DateTimeOffset? CreatedOn { get; set; }
@@ -63,6 +63,15 @@ namespace ApplicationCore.Entities.Accounts
         public User UpdatedByUser { get; set; }
 
         #endregion
+
+        #region Commented (From the old system)
+
+        //public FbAccessToken FbAccessTokenUser { get; set; }
+        //public GoogleAccessToken GoogleAccessTokenUser { get; set; }
+        //public ICollection<AccessToken> AccessTokenAuditUsers { get; set; }
+        //public ICollection<AccessToken> AccessTokenRevokedByNavigations { get; set; }
+        //public ICollection<AccessType> AccessTypes { get; set; }
+        //public ICollection<AccountMaster> AccountMasters { get; set; }
 
         //public ICollection<Account> Accounts { get; set; }
         ////public ICollection<Application> Applications { get; set; }
@@ -227,5 +236,7 @@ namespace ApplicationCore.Entities.Accounts
         //public ICollection<Unit> Units { get; set; }
         //public ICollection<Variant> Variants { get; set; }
         //public ICollection<WeekDay1> WeekDay1 { get; set; }
+
+        #endregion
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using ApplicationCore.Entities.Accounts;
 
 namespace Infrastructure.Data
 {
@@ -67,12 +68,32 @@ namespace Infrastructure.Data
 
         public T Add(T entity)
         {
-            _dbContext.Set<T>().Add(entity);            
+            if (entity is IEntity)  // the current user may add himself for the first time
+            {
+                var e = entity as IEntity;
+                e.Id = Guid.NewGuid();               
+            }
+            if (entity is IAuditable && !(entity is User))  // the current user may add himself for the first time
+            {
+                var auditable = entity as IAuditable;
+                auditable.CreatedByUserId = Guid.Parse("FDDFF607-9C87-4CBC-93F9-8544D4B04B62"); //from the context
+                auditable.UpdatedByUserId = Guid.Parse("FDDFF607-9C87-4CBC-93F9-8544D4B04B62"); //from the context
+                auditable.CreatedOn = DateTime.Now;
+                auditable.UpdatedOn = DateTime.Now;
+            }
+
+            _dbContext.Set<T>().Add(entity);               
             return entity;
         }
 
         public void Update(T entity)
         {
+            if (entity is IAuditable)
+            {
+                var auditable = entity as IAuditable;
+                auditable.UpdatedByUserId = Guid.Parse("FDDFF607-9C87-4CBC-93F9-8544D4B04B62"); //from the context
+                auditable.UpdatedOn = DateTime.Now;
+            }
             _dbContext.Entry(entity).State = EntityState.Modified;
         }
 

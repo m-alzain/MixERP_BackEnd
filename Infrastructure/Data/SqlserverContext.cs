@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using ApplicationCore.Entities.Accounts;
-using ApplicationCore.Entities.Finance;
+//using ApplicationCore.Entities.Finance;
 using Infrastructure.Data.Configurations.Accounts;
-//using ApplicationCore.Entities.Core;
+using ApplicationCore.Entities.Core;
 //using Infrastructure.Data.Configurations.Core;
 //using ApplicationCore.Entities.Calendar;
-//using ApplicationCore.Entities.Auth;
+using ApplicationCore.Entities.Auth;
 //using ApplicationCore.Entities.AddessBook;
 //using ApplicationCore.Entities.Config;
 //using ApplicationCore.Entities.Hrm;
@@ -21,7 +21,8 @@ using Infrastructure.Data.Configurations.Accounts;
 //using Infrastructure.Data.Configurations.Hrm;
 //using ApplicationCore.Queries;
 //using ApplicationCore.Queries.Forms;
-//using Infrastructure.Data.Configurations.Auth;
+using Infrastructure.Data.Configurations.Auth;
+using Infrastructure.Data.Configurations.Core;
 //using Infrastructure.Data.Configurations.Finance;
 //using Infrastructure.Data.Configurations.Sales;
 //using Infrastructure.Data.Configurations.Website;
@@ -45,6 +46,12 @@ namespace Infrastructure.Data
         }
 
         ////Accounts
+        public virtual DbSet<Office> Offices { get; set; }
+        public virtual DbSet<Tenant> Tenants { get; set; }
+        public virtual DbSet<OfficeUser> TenantOfficeUsers { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<RoleUser> RoleUsers { get; set; }
         //public virtual DbSet<AccessToken> AccessTokens { get; set; }
         //public virtual DbSet<Application> Applications { get; set; }
         //public virtual DbSet<ConfigurationProfile> ConfigurationProfiles { get; set; }
@@ -53,17 +60,13 @@ namespace Infrastructure.Data
         //public virtual DbSet<InstalledDomain> InstalledDomains { get; set; }
         //public virtual DbSet<Login> Logins { get; set; }
         //public virtual DbSet<Registration> Registrations { get; set; }
-        //public virtual DbSet<ResetRequest> ResetRequests { get; set; }
-        //public virtual DbSet<Role> Roles { get; set; }
-        public virtual DbSet<Office> Offices { get; set; }
-        public virtual DbSet<Tenant> Tenants { get; set; }
-        public virtual DbSet<OfficeUser> TenantOfficeUsers { get; set; }
-        public virtual DbSet<User> Users { get; set; }
+        //public virtual DbSet<ResetRequest> ResetRequests { get; set; }        
+
 
         ////Auth
+        public virtual DbSet<GroupEntityAccessPolicy> GroupEntityAccessPolicies { get; set; }
         //public virtual DbSet<AccessType> AccessTypes { get; set; }
         //public virtual DbSet<EntityAccessPolicy> EntityAccessPolicies { get; set; }
-        //public virtual DbSet<GroupEntityAccessPolicy> GroupEntityAccessPolicies { get; set; }
         //public virtual DbSet<GroupMenuAccessPolicy> GroupMenuAccessPolicies { get; set; }
         //public virtual DbSet<MenuAccessPolicy> MenuAccessPolicies { get; set; }
 
@@ -96,6 +99,7 @@ namespace Infrastructure.Data
         //public virtual DbSet<TransactionType> TransactionTypes { get; set; }
 
         ////Core
+        public virtual DbSet<EntityType> EntityTypes { get; set; }
         //public virtual DbSet<App> Apps { get; set; }
         //public virtual DbSet<AppDependency> AppDependencies { get; set; }
         //public virtual DbSet<Country> Countries { get; set; }
@@ -249,6 +253,12 @@ namespace Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //// Accounts
+            modelBuilder.ApplyConfiguration(new OfficeConfiguration());
+            modelBuilder.ApplyConfiguration(new TenantConfiguration());
+            modelBuilder.ApplyConfiguration(new OfficeUserConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleUserConfiguration());
             //modelBuilder.ApplyConfiguration(new AccessTokenConfiguration());
             //modelBuilder.ApplyConfiguration(new ApplicationConfiguration());
             //modelBuilder.ApplyConfiguration(new ConfigurationProfileConfiguration());
@@ -259,15 +269,12 @@ namespace Infrastructure.Data
             //modelBuilder.ApplyConfiguration(new RegistrationConfiguration());
             //modelBuilder.ApplyConfiguration(new ResetRequestConfiguration());
             //modelBuilder.ApplyConfiguration(new RoleConfiguration());
-            modelBuilder.ApplyConfiguration(new OfficeConfiguration());
-            modelBuilder.ApplyConfiguration(new TenantConfiguration());
-            modelBuilder.ApplyConfiguration(new OfficeUserConfiguration());
-            modelBuilder.ApplyConfiguration(new UserConfiguration());            
+
 
             //// Auth
+            modelBuilder.ApplyConfiguration(new GroupEntityAccessPolicyConfiguration());
             //modelBuilder.ApplyConfiguration(new AccessTypeConfiguration());
             //modelBuilder.ApplyConfiguration(new EntityAccessPolicyConfiguration());
-            //modelBuilder.ApplyConfiguration(new GroupEntityAccessPolicyConfiguration());
             //modelBuilder.ApplyConfiguration(new GroupMenuAccessPolicyConfiguration());
             //modelBuilder.ApplyConfiguration(new MenuAccessPolicyConfiguration());
 
@@ -300,6 +307,7 @@ namespace Infrastructure.Data
             //modelBuilder.ApplyConfiguration(new TransactionTypeConfiguration());
 
             //// Core
+            modelBuilder.ApplyConfiguration(new EntityTypeConfiguration());
             //modelBuilder.ApplyConfiguration(new AppConfiguration());
             //modelBuilder.ApplyConfiguration(new AppDependencyConfiguration());
             //modelBuilder.ApplyConfiguration(new CountryConfiguration());

@@ -20,9 +20,17 @@ namespace Infrastructure.Data.Configurations.Accounts
                 .IsUnique()
                 .HasFilter("([deleted]=(0))");
 
-            builder.Property(e => e.TenantId).HasColumnName("tenant_id");
+            #region  IEntity, ITenant
 
             builder.Property(e => e.Id).HasColumnName("office_id");
+
+            builder.Property(e => e.TenantId).HasColumnName("tenant_id");
+            builder.HasOne(o => o.Tenant)
+               .WithMany(t => t.Offices)
+               .HasForeignKey(o => o.TenantId)
+               .HasConstraintName("FK__offices__tenant").OnDelete(DeleteBehavior.ClientSetNull);
+
+            #endregion
 
             builder.Property(e => e.AddressLine1)
                 .HasColumnName("address_line_1")
@@ -115,17 +123,12 @@ namespace Infrastructure.Data.Configurations.Accounts
                 .HasColumnName("zip_code")
                 .HasMaxLength(24);
 
-            builder.HasOne(o => o.Tenant)
-                .WithMany(t => t.Offices)
-                .HasForeignKey(o => o.TenantId)
-                .HasConstraintName("FK__offices__tenant").OnDelete(DeleteBehavior.ClientSetNull);
-
             builder.HasOne(d => d.ParentOffice)
-                .WithMany(p => p.InverseParentOffice)
-                .HasForeignKey(d => d.ParentOfficeId)
-                .HasConstraintName("FK__offices__parent___31EC6D26").OnDelete(DeleteBehavior.ClientSetNull);
+               .WithMany(p => p.InverseParentOffice)
+               .HasForeignKey(d => d.ParentOfficeId)
+               .HasConstraintName("FK__offices__parent___31EC6D26").OnDelete(DeleteBehavior.ClientSetNull);
 
-            #region Audit
+            #region IAuditable
 
             builder.Property(e => e.CreatedOn)
                 .HasColumnName("created_on")

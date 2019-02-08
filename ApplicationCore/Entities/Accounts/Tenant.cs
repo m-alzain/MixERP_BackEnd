@@ -31,8 +31,9 @@ namespace ApplicationCore.Entities.Accounts
         public bool? Deleted { get; set; }        
 
         public ICollection<Office> Offices { get; set; }
+        public ICollection<Role> Roles { get; set; }
 
-        #region Audit
+        #region IAuditable
 
         public Guid? CreatedByUserId { get; set; }
         public DateTimeOffset? CreatedOn { get; set; }

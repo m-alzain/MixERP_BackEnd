@@ -1,6 +1,10 @@
 ﻿using ApplicationCore.Entities.Accounts;
+using ApplicationCore.Entities.Auth;
+using ApplicationCore.Entities.Core;
 using AutoMapper;
 using Contracts.Accounts;
+using Contracts.Auth;
+using Contracts.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +18,7 @@ namespace ApplicationCore.Mapping.Accounts
         {
             CreateMap<User, UserDto>()
                 .ForMember(dto => dto.Offices, conf => conf.MapFrom(u => u.OfficeUsers.Select(tou => tou.Office)))
+                .ForMember(dto => dto.Roles, conf => conf.MapFrom(u => u.RoleUsers.Select(ru => ru.Role)))
             .ReverseMap()
             .ForPath(tm => tm.OfficeUsers, opt => opt.Ignore());
 
@@ -35,8 +40,20 @@ namespace ApplicationCore.Mapping.Accounts
 
 
             // in case we want to add new tenant and there is no office; an office with tenant info will be added
-            
 
+
+
+
+            CreateMap<EntityType, EntityTypeDto>()               
+            .ReverseMap();
+
+            CreateMap<GroupEntityAccessPolicy, GroupEntityAccessPolicyDto>()
+                .ForMember(dto => dto.RoleName, conf => conf.MapFrom(u => u.Role.RoleName))
+            .ReverseMap()
+            .ForPath(tm => tm.Role.RoleName, opt => opt.Ignore());
+
+            CreateMap<Role, RoleDto>()
+           .ReverseMap();
         }
     }
 }

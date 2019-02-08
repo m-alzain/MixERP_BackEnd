@@ -14,11 +14,21 @@ namespace ApplicationCore.Entities.Accounts
 {
     public class Office : IEntity, ITenant, IAuditable
     {
-        
+
+        #region ITenant
+
         public Guid TenantId { get; set; }
+        public Tenant Tenant { get; set; }
+
+        #endregion
+
+        #region IEntity
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Guid Id { get; set; }
+
+        #endregion
+
         public string OfficeCode { get; set; }
         public string OfficeName { get; set; }
         public string NickName { get; set; }
@@ -43,12 +53,13 @@ namespace ApplicationCore.Entities.Accounts
         public bool AllowTransactionPosting { get; set; }                
         public bool? Deleted { get; set; }
 
-        public Tenant Tenant { get; set; }
+
         public Office ParentOffice { get; set; }
         public ICollection<OfficeUser> OfficeUsers { get; set; }
         public ICollection<Office> InverseParentOffice { get; set; }
+        public ICollection<Role> Roles { get; set; }
 
-        #region Audit
+        #region IAuditable
 
         public Guid? CreatedByUserId { get; set; }
         public DateTimeOffset? CreatedOn { get; set; }
@@ -58,6 +69,8 @@ namespace ApplicationCore.Entities.Accounts
         public User UpdatedByUser { get; set; }
 
         #endregion
+
+        #region Commented (From the old system)
 
         //public InventorySetup InventorySetup { get; set; }
         //public TaxSetup TaxSetup { get; set; }
@@ -91,5 +104,7 @@ namespace ApplicationCore.Entities.Accounts
         //public ICollection<TransactionDetail> TransactionDetails { get; set; }
         //public ICollection<TransactionMaster> TransactionMasters { get; set; }
         //public ICollection<User> Users { get; set; }
+
+        #endregion
     }
 }

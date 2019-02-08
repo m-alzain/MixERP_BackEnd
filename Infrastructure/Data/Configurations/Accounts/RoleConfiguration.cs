@@ -1,44 +1,67 @@
-﻿//using ApplicationCore.Entities.Accounts;
-//using Microsoft.EntityFrameworkCore;
-//using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using ApplicationCore.Entities.Accounts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-//namespace Infrastructure.Data.Configurations.Accounts
-//{
-//    public class RoleConfiguration : IEntityTypeConfiguration<Role>
-//    {
-//        public void Configure(EntityTypeBuilder<Role> entity)
-//        {
-//            entity.ToTable("roles", "account");
+namespace Infrastructure.Data.Configurations.Accounts
+{
+    public class RoleConfiguration : IEntityTypeConfiguration<Role>
+    {
+        public void Configure(EntityTypeBuilder<Role> builder)
+        {
+            builder.ToTable("roles", "account");
 
-//            entity.HasIndex(e => e.RoleName)
-//                .HasName("UQ__roles__783254B1A0BC1C3C")
-//                .IsUnique();
+            builder.HasIndex(e => e.RoleName)
+                .HasName("UQ__roles__783254B1A0BC1C3C")
+                .IsUnique();
 
-//            entity.Property(e => e.RoleId)
-//                .HasColumnName("role_id")
-//                .ValueGeneratedNever();
+            #region IEntity, IOffice
 
-//            entity.Property(e => e.AuditTs)
-//                .HasColumnName("audit_ts")
-//                .HasDefaultValueSql("(getutcdate())");
+            builder.Property(e => e.Id)
+                .HasColumnName("role_id")
+                .ValueGeneratedNever();
+           
+            builder.Property(e => e.OfficeId).HasColumnName("office_id");
+            builder.HasOne(d => d.Office)
+                .WithMany(p => p.Roles)
+                .HasForeignKey(d => d.OfficeId)
+                .HasConstraintName("FK__roles__office___31EC6D26").OnDelete(DeleteBehavior.ClientSetNull);
 
-//            entity.Property(e => e.AuditUserId).HasColumnName("audit_user_id");
+            #endregion
 
-//            entity.Property(e => e.Deleted)
-//                .HasColumnName("deleted")
-//                .HasDefaultValueSql("((0))");
+            builder.Property(e => e.Deleted)
+                .HasColumnName("deleted")
+                .HasDefaultValueSql("((0))");
 
-//            entity.Property(e => e.IsAdministrator).HasColumnName("is_administrator");
+            builder.Property(e => e.IsAdministrator).HasColumnName("is_administrator");
 
-//            entity.Property(e => e.RoleName)
-//                .IsRequired()
-//                .HasColumnName("role_name")
-//                .HasMaxLength(100);
+            builder.Property(e => e.RoleName)
+                .IsRequired()
+                .HasColumnName("role_name")
+                .HasMaxLength(100);
 
-//            entity.HasOne(d => d.AuditUser)
-//                .WithMany(p => p.Roles)
-//                .HasForeignKey(d => d.AuditUserId)
-//                .HasConstraintName("FK__roles__audit_use__05D8E0BE");
-//        }
-//    }
-//}
+
+
+            #region IAuditable
+
+            builder.Property(e => e.CreatedOn)
+                .HasColumnName("created_on")
+                .HasDefaultValueSql("(getutcdate())");
+            builder.Property(e => e.CreatedByUserId).HasColumnName("created_by_userId");
+            builder.HasOne(d => d.CreatedByUser)
+                .WithMany(p => p.CreatedRoles)
+                .HasForeignKey(d => d.CreatedByUserId)
+                .HasConstraintName("FK__created_roles__createted_by_user").OnDelete(DeleteBehavior.ClientSetNull);
+
+            builder.Property(e => e.UpdatedOn)
+                .HasColumnName("updated_on")
+                .HasDefaultValueSql("(getutcdate())");
+            builder.Property(e => e.UpdatedByUserId).HasColumnName("updated_by_userId");
+            builder.HasOne(d => d.UpdatedByUser)
+                .WithMany(p => p.UpdatedRoles)
+                .HasForeignKey(d => d.UpdatedByUserId)
+                .HasConstraintName("FK__updated_roles__updated_by_user").OnDelete(DeleteBehavior.ClientSetNull);
+
+            #endregion
+        }
+    }
+}

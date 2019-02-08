@@ -26,6 +26,10 @@ using Web.Extensions;
 using Newtonsoft.Json.Serialization;
 using ApplicationCore.Interfaces.Accounts;
 using ApplicationCore.Services.Accounts;
+using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Web.Filters;
 
 namespace Web
 {
@@ -74,9 +78,26 @@ namespace Web
 
             var mappingAssemply = typeof(JournalEntryMappingProfile).Assembly;
             services.ConfigureAutoMapper(new[] { mappingAssemply });
-            
+
             services.AddCors();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+              .AddIdentityServerAuthentication(options =>
+              {
+                  options.Authority = "http://localhost:5000/";
+                  options.ApiName = "api1";
+                  options.ApiSecret = "api1Secret";                 
+                  options.RequireHttpsMetadata = false;
+              });
+
+            services.AddMvc(config =>
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                                     .RequireAuthenticatedUser()
+                                     .Build();
+                    config.Filters.Add(new AuthorizeFilter(policy));
+                    config.Filters.Add(typeof(UserContextFilter)); // by type
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver()); // If you need/want all of the JSON output to be in PascalCase
         }
 
@@ -102,6 +123,8 @@ namespace Web
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod());
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {

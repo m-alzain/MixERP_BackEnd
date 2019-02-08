@@ -17,7 +17,8 @@ namespace Contracts.Accounts
         public bool? Deleted { get; set; }
 
         public IList<OfficeDto> Offices { get; set; }
-        
+        public IList<RoleDto> Roles { get; set; }
+
 
         #region Audit
 
