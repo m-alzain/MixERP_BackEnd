@@ -27,6 +27,7 @@ namespace ApplicationCore.Services.Accounts
         private readonly IRepository<RoleUser> _roleUserRepository; // the way to add many to many relation in ef core; at least for now
         private readonly IRepository<EntityType> _entityTypeRepository;
         private readonly IRepository<GroupEntityAccessPolicy> _groupEntityAccessPolicyRepository;
+        private readonly AuthContext _authContext;
         private readonly IMapper _mapper;
 
         public UserService(
@@ -38,6 +39,7 @@ namespace ApplicationCore.Services.Accounts
             IRepository<RoleUser> roleUserRepository,
             IRepository<EntityType> entityTypeRepository,
             IRepository<GroupEntityAccessPolicy> groupEntityAccessPolicyRepository,
+            AuthContext authContext,
             IMapper mapper)
         {
             _userRepository = userRepository;
@@ -48,6 +50,7 @@ namespace ApplicationCore.Services.Accounts
             _roleUserRepository = roleUserRepository;
             _entityTypeRepository = entityTypeRepository;
             _groupEntityAccessPolicyRepository = groupEntityAccessPolicyRepository;
+            _authContext = authContext;
             _mapper = mapper;
         }
 
@@ -74,21 +77,49 @@ namespace ApplicationCore.Services.Accounts
 
         public async Task<UserDto> GetUser(string userId)
         {
-            return _mapper.Map<UserDto>(await _userRepository.List().Include(u => u.OfficeUsers).ThenInclude(ou => ou.Office).Include(u => u.RoleUsers).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId)));
+            return _mapper.Map<UserDto>(await _userRepository.List().Include(u => u.OfficeUsers).ThenInclude(ou => ou.Office).Include(u => u.RoleUsers).ThenInclude(ur => ur.Role).ProjectTo<UserDto>().FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId)));
+        }
+
+
+        public async Task<UserDto> GetUserByEmail(string email)
+        {
+            return _mapper.Map<UserDto>(await _userRepository.List().Include(u => u.OfficeUsers).ThenInclude(ou => ou.Office).Include(u => u.RoleUsers).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public async Task<UserDto> GetAuthContext()
+        {
+            return await Task.FromResult(_authContext.CurrentUser);
         }
 
         public async Task<UserDto> CreateInitialUser(UserDto userDto)
         {
             ValidateUser(userDto);
-            userDto.Id = Guid.NewGuid();
+            userDto.CreatedOn = DateTime.Now;  // the current user may add himself for the first time
             userDto.UpdatedOn = DateTimeOffset.Now;
             var user = _mapper.Map<User>(userDto);
-            _userRepository.Add(user);
+            user = _userRepository.Add(user);
             
-            await _userRepository.SaveAsync();
-            
+            await _userRepository.SaveAsync();          
                         
-            return _mapper.Map<UserDto>(await _userRepository.GetByIdAsync(userDto.Id));
+            return await GetUser(user.Id.ToString());
+        }
+
+        public async Task<UserDto> UpdateUser(UserDto userDto, string userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if(user != null)
+            {
+                userDto.Offices = null;
+                userDto.Roles = null;
+                _mapper.Map<UserDto, User>(userDto, user);
+                _userRepository.Update(user);
+                await _userRepository.SaveAsync();
+                return await GetUser(user.Id.ToString());
+            }
+            else
+            {
+                throw new Exception("The user does not exist");
+            }
         }
 
         public async Task<UserDto> CreateUser(UserDto userDto, string officeId)
@@ -404,7 +435,7 @@ namespace ApplicationCore.Services.Accounts
         {
             //throw new NotImplementedException();
         }
-
+       
         #endregion
 
     }

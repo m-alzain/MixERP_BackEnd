@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using ApplicationCore.Entities.Accounts;
+using Contracts.Accounts;
 
 namespace Infrastructure.Data
 {
@@ -17,10 +18,12 @@ namespace Infrastructure.Data
     public class EfRepository<T> : IRepository<T> where T : class //BaseEntity
     {
         protected readonly SqlserverContext _dbContext;
+        protected readonly AuthContext _userContext;
 
-        public EfRepository(SqlserverContext dbContext)
+        public EfRepository(SqlserverContext dbContext, AuthContext userContext)
         {
             _dbContext = dbContext;
+            _userContext = userContext;
         }
 
         //public async virtual Task<T> GetByIdAsync(int id)
@@ -68,16 +71,19 @@ namespace Infrastructure.Data
 
         public T Add(T entity)
         {
-            if (entity is IEntity)  // the current user may add himself for the first time
+            if (entity is IEntity) 
             {
                 var e = entity as IEntity;
                 e.Id = Guid.NewGuid();               
             }
-            if (entity is IAuditable && !(entity is User))  // the current user may add himself for the first time
+            if (entity is IAuditable)  
             {
                 var auditable = entity as IAuditable;
-                auditable.CreatedByUserId = Guid.Parse("FDDFF607-9C87-4CBC-93F9-8544D4B04B62"); //from the context
-                auditable.UpdatedByUserId = Guid.Parse("FDDFF607-9C87-4CBC-93F9-8544D4B04B62"); //from the context
+                if (!(entity is User)) // the current user may add himself for the first time
+                { 
+                    auditable.CreatedByUserId = _userContext.CurrentUser.Id;  
+                    auditable.UpdatedByUserId = _userContext.CurrentUser.Id; 
+                }
                 auditable.CreatedOn = DateTime.Now;
                 auditable.UpdatedOn = DateTime.Now;
             }
@@ -88,10 +94,13 @@ namespace Infrastructure.Data
 
         public void Update(T entity)
         {
-            if (entity is IAuditable)
+            if (entity is IAuditable && !(entity is User)) 
             {
                 var auditable = entity as IAuditable;
-                auditable.UpdatedByUserId = Guid.Parse("FDDFF607-9C87-4CBC-93F9-8544D4B04B62"); //from the context
+                if (!(entity is User)) // user may need to update himself before setting the context
+                {
+                    auditable.UpdatedByUserId = _userContext.CurrentUser.Id;
+                }
                 auditable.UpdatedOn = DateTime.Now;
             }
             _dbContext.Entry(entity).State = EntityState.Modified;

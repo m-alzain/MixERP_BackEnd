@@ -30,7 +30,7 @@ namespace Contracts.Accounts
         public string RegistrationNumber { get; set; }
         public string PanNumber { get; set; }
         public bool AllowTransactionPosting { get; set; }
-        public bool? Deleted { get; set; }
+        public bool Deleted { get; set; }
 
         public string Tenant { get; set; }
         public string ParentOffice { get; set; }

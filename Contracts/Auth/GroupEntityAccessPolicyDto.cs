@@ -13,7 +13,7 @@ namespace Contracts.Auth
         public Guid RoleId { get; set; }
         public AccessType AccessType { get; set; }
         public bool AllowAccess { get; set; }
-        public bool? Deleted { get; set; }
+        public bool Deleted { get; set; }
         public EntityTypeDto EntityType { get; set; }
         public string RoleName { get; set; }
 

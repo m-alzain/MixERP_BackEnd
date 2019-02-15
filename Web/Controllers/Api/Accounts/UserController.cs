@@ -45,11 +45,32 @@ namespace Web.Controllers.Api.Accounts
             return await _userService.GetOfficeUsers(officeId);
         }
 
+        [Route("account/users/authcontext")]
+        [HttpGet]
+        public async Task<ActionResult<UserDto>> GetAuthContext()
+        {
+            return await _userService.GetAuthContext();
+        }
+
+        [Route("account/users/getbyemail/{email}")]
+        [HttpGet]
+        public async Task<ActionResult<UserDto>> GetUserByEmail(string email)
+        {
+            return await _userService.GetUserByEmail(email);
+        }
+
         [Route("account/users/create")]
         [HttpPost]
         public async Task<ActionResult<UserDto>> CreateInitialUser([FromBody] UserDto userDto)
         {
             return await _userService.CreateInitialUser(userDto);
+        }
+
+        [Route("account/users/update/{userId}")]
+        [HttpPut]
+        public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UserDto userDto, string userId)
+        {
+            return await _userService.UpdateUser(userDto, userId);
         }
 
         [Route("account/users/create/{officeId}")]
@@ -173,7 +194,7 @@ namespace Web.Controllers.Api.Accounts
             return await _userService.CreateEntityType(entityTypeDto);
         }
 
-        [Route("account/entitytypes/get")]
+        [Route("account/entitytypes")]
         [HttpGet]
         public async Task<IList<EntityTypeDto>> GetAllEntityTypes()
         {

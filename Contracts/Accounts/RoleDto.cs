@@ -13,7 +13,7 @@ namespace Contracts.Accounts
 
         public string RoleName { get; set; }
         public bool IsAdministrator { get; set; }
-        public bool? Deleted { get; set; }
+        public bool Deleted { get; set; }
 
         public IList<GroupEntityAccessPolicyDto> GroupEntityAccessPolicies { get; set; }
 

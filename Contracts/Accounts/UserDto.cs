@@ -14,7 +14,7 @@ namespace Contracts.Accounts
         public DateTimeOffset? LastSeenOn { get; set; }
         public string LastIp { get; set; }
         public string LastBrowser { get; set; }
-        public bool? Deleted { get; set; }
+        public bool Deleted { get; set; }
 
         public IList<OfficeDto> Offices { get; set; }
         public IList<RoleDto> Roles { get; set; }

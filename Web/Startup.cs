@@ -30,6 +30,8 @@ using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Web.Filters;
+using Contracts.Auth;
+using Contracts.Accounts;
 
 namespace Web
 {
@@ -62,6 +64,7 @@ namespace Web
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             //services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
             services.AddScoped(typeof(IUserService), typeof(UserService));
+            services.AddScoped<AuthContext>();
             //services.AddScoped(typeof(IAccountRepository), typeof(AccountRepository));
             //services.AddScoped(typeof(ICommandRepository), typeof(CommandRepository));
             //services.AddScoped(typeof(ITransactionPostingService), typeof(TransactionPostingService));
@@ -96,7 +99,7 @@ namespace Web
                                      .RequireAuthenticatedUser()
                                      .Build();
                     config.Filters.Add(new AuthorizeFilter(policy));
-                    config.Filters.Add(typeof(UserContextFilter)); // by type
+                    config.Filters.Add(typeof(AuthContextFilter)); // by type
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver()); // If you need/want all of the JSON output to be in PascalCase
         }

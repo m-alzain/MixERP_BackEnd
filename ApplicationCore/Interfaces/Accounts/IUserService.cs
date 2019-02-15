@@ -14,8 +14,11 @@ namespace ApplicationCore.Interfaces.Accounts
         Task<IList<UserDto>> GetTenantUsers(string tenantId);
         Task<IList<UserDto>> GetOfficeUsers(string officeId);
         Task<UserDto> GetUser(string userId);
+        Task<UserDto> GetUserByEmail(string email);
+        Task<UserDto> GetAuthContext();
         Task<UserDto> CreateUser(UserDto userDto, string officeId);
         Task<UserDto> CreateInitialUser(UserDto userDto);
+        Task<UserDto> UpdateUser(UserDto userDto, string userId);
         Task<UserDto> AddUser(string userId, string officeId);
         Task<string> DeleteUser(string userId);
 
