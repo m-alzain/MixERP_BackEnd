@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ApplicationCore.Entities.Accounts
 {
-    public class Tenant : IAuditable
+    public class Tenant : IEntity, IAuditable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Guid Id { get; set; }

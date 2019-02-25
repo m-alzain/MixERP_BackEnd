@@ -18,14 +18,16 @@ namespace ApplicationCore.Interfaces.Accounts
         Task<UserDto> GetAuthContext();
         Task<UserDto> CreateUser(UserDto userDto, string officeId);
         Task<UserDto> CreateInitialUser(UserDto userDto);
-        Task<UserDto> UpdateUser(UserDto userDto, string userId);
-        Task<UserDto> AddUser(string userId, string officeId);
+        Task<UserDto> UpdateContextUser(UserDto userDto);
+        Task<UserDto> UpdateUser(UserDto userDto, string officeId);
+        Task<UserDto> AddOfficeUser(UserDto userDto, string officeId);
         Task<string> DeleteUser(string userId);
 
         Task<IList<TenantDto>> GetAllTenants();
-        Task<IList<TenantDto>> GetUserTenants(string userId);
+        Task<IList<TenantDto>> GetUserTenants();
         Task<TenantDto> GetTenant(string tenantId);
         Task<TenantDto> CreateTenant(TenantDto tenantDto);
+        Task<TenantDto> UpdateTenant(TenantDto tenantDto);
         Task<string> DeleteTenant(string tenantId);
 
         Task<IList<OfficeDto>> GetAllOffices();      
@@ -40,7 +42,7 @@ namespace ApplicationCore.Interfaces.Accounts
         Task<IList<RoleDto>> GetOfficeRoles(string officeId);
         Task<RoleDto> GetRole(string roloeId);
         Task<RoleDto> CreateRole(RoleDto roleDto);
-        Task<UserDto> AddRoleUser(string roleId, string userId );
+        Task<UserDto> UpdateRoleUser(string officeId, string userId, string roleId );
         Task<string> DeleteRole(string roleId);
 
         Task<IList<EntityTypeDto>> GetAllEntityTypes();

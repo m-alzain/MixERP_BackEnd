@@ -24,7 +24,7 @@ namespace Web.Controllers.Api.Accounts
 
         #region User part
 
-        [Route("account/users/get")]
+        [Route("account/users")]
         [HttpGet]
         public async Task<IList<UserDto>> GetAllUsers()
         {
@@ -38,9 +38,9 @@ namespace Web.Controllers.Api.Accounts
             return await _userService.GetTenantUsers(tenantId);
         }
 
-        [Route("account/office/users/get/{officeId}")]
+        [Route("account/office/users/{officeId}")]
         [HttpGet]
-        public async Task<IList<UserDto>> GetOfficeUsers(string officeId)
+        public async Task<IList<UserDto>> GetOfficeUsers(string officeId) // in use
         {
             return await _userService.GetOfficeUsers(officeId);
         }
@@ -59,33 +59,26 @@ namespace Web.Controllers.Api.Accounts
             return await _userService.GetUserByEmail(email);
         }
 
-        [Route("account/users/create")]
+        [Route("account/users")]
         [HttpPost]
         public async Task<ActionResult<UserDto>> CreateInitialUser([FromBody] UserDto userDto)
         {
             return await _userService.CreateInitialUser(userDto);
         }
 
-        [Route("account/users/update/{userId}")]
+        [Route("account/users/{officeId}")] // in use
         [HttpPut]
-        public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UserDto userDto, string userId)
+        public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UserDto userDto, string officeId) // in use
         {
-            return await _userService.UpdateUser(userDto, userId);
+            return await _userService.UpdateUser(userDto, officeId);
         }
 
-        [Route("account/users/create/{officeId}")]
+        [Route("account/users/{officeId}")] // in use
         [HttpPost]
-        public async Task<ActionResult<UserDto>> CreateUser([FromBody] UserDto userDto, string officeId)
+        public async Task<ActionResult<UserDto>> CreateUser([FromBody] UserDto userDto, string officeId) // in use
         {
             return await _userService.CreateUser(userDto, officeId);
-        }
-
-        [Route("account/users/add/{userId}/{officeId}")]
-        [HttpPost]
-        public async Task<ActionResult<UserDto>> AddUser(string userId, string officeId)
-        {
-            return await _userService.AddUser(userId, officeId);
-        }
+        }        
 
         [Route("account/users/delete/{userId}")]
         [HttpDelete]
@@ -98,18 +91,18 @@ namespace Web.Controllers.Api.Accounts
 
         #region Tenant part
 
-        [Route("account/tenants/get")]
+        [Route("account/tenants")]  // for super admin
         [HttpGet]
         public async Task<IList<TenantDto>> GetAllTenants()
         {
             return await _userService.GetAllTenants();
         }
         
-        [Route("account/user/tenants/get/{userId}")]
+        [Route("account/user/tenants")] // in use
         [HttpGet]
-        public async Task<IList<TenantDto>> GetUserTenants(string userId)
+        public async Task<IList<TenantDto>> GetUserTenants()
         {
-            return await _userService.GetUserTenants(userId);
+            return await _userService.GetUserTenants();
         }
 
         [Route("account/tenants/get/{tenantId}")]
@@ -119,11 +112,18 @@ namespace Web.Controllers.Api.Accounts
             return await _userService.GetTenant(tenantId);
         }
 
-        [Route("account/tenants/create")]
+        [Route("account/tenants")] // in use
         [HttpPost]
-        public async Task<ActionResult<TenantDto>> CreateTenant([FromBody] TenantDto tenantDto)
+        public async Task<TenantDto> CreateTenant([FromBody] TenantDto tenantDto)
         {
             return await _userService.CreateTenant(tenantDto);
+        }
+
+        [Route("account/tenants")] // in use
+        [HttpPut]
+        public async Task<TenantDto> UpdateTenant([FromBody] TenantDto tenantDto)
+        {
+            return await _userService.UpdateTenant(tenantDto);
         }
 
         #endregion
@@ -158,15 +158,22 @@ namespace Web.Controllers.Api.Accounts
             return await _userService.CreateOffice(officeDto);
         }
 
+        [Route("account/officeusers/{officeId}")]
+        [HttpPost]
+        public async Task<ActionResult<UserDto>> AddOfficeUser(UserDto userDto, string officeId) // in use
+        {
+            return await _userService.AddOfficeUser(userDto, officeId);
+        }
+
         #endregion
 
         #region Role part
 
-        [Route("account/roles/get")]
+        [Route("account/roles/{officeId}")] // in use
         [HttpGet]
-        public async Task<IList<RoleDto>> GetAllRoles()
+        public async Task<IList<RoleDto>> GetOfficeRoles(string officeId) 
         {
-            return await _userService.GetAllRoles();
+            return await _userService.GetOfficeRoles(officeId);
         }
 
         [Route("account/roles/create")]
@@ -176,11 +183,11 @@ namespace Web.Controllers.Api.Accounts
             return await _userService.CreateRole(roleDto);
         }
 
-        [Route("account/roles/adduser/{roleId}/{userId}")]
+        [Route("account/roles/user/{officeId}/{userId}/{roleId}")]
         [HttpPost]
-        public async Task<ActionResult<UserDto>> AddRoleUser(string roleId, string userId)
+        public async Task<ActionResult<UserDto>> UpdateRoleUser(string officeId, string userId, string roleId)
         {
-            return await _userService.AddRoleUser(roleId, userId);
+            return await _userService.UpdateRoleUser(officeId, userId, roleId);
         }
 
         #endregion

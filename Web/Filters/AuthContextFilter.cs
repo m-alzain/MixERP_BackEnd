@@ -63,7 +63,7 @@ namespace Web.Filters
                 user.LastBrowser = browser;
                 user.LastIp = context.HttpContext.Connection.RemoteIpAddress.ToString();
                 user.LastSeenOn = DateTime.Now;
-                currentUser = _userService.UpdateUser(user, user.Id.ToString()).Result;
+                currentUser = _userService.UpdateContextUser(user).Result;
             }
             if (tenantId != null)
             {
@@ -79,7 +79,7 @@ namespace Web.Filters
             }
             if (currentOffice != null)
             {
-                currentRole = currentUser.Roles.First(r => r.OfficeId == currentOffice.Id);
+                currentRole = currentUser.Roles.FirstOrDefault(r => r.OfficeId == currentOffice.Id);
             }
 
             _authContext.CurrentUser = currentUser;

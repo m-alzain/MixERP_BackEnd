@@ -94,7 +94,7 @@ namespace Infrastructure.Data
 
         public void Update(T entity)
         {
-            if (entity is IAuditable && !(entity is User)) 
+            if (entity is IAuditable)
             {
                 var auditable = entity as IAuditable;
                 if (!(entity is User)) // user may need to update himself before setting the context
