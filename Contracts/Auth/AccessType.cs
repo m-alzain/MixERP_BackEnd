@@ -3,17 +3,17 @@ namespace Contracts.Auth
 {
     public enum AccessType
     {
-        READ,
-        CREATE,
-        EDIT,
-        DELETE,
-        CREATEFILTER,
-        DELETEFILTER,
-        EXPORT,
-        EXPORTDATA,
-        IMPORTDATA,
-        EXECUTE,
-        VERIFY,
+        READ = 1,
+        CREATE = 2,
+        EDIT = 3,
+        DELETE = 4,
+        CREATEFILTER = 5,
+        DELETEFILTER = 6,
+        EXPORT = 7,
+        EXPORTDATA = 8,
+        IMPORTDATA = 9,
+        EXECUTE = 10,
+        VERIFY = 11,
 
         #region Commented (From the old system)
 

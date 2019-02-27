@@ -24,47 +24,40 @@ namespace Web.Controllers.Api.Accounts
 
         #region User part
 
-        [Route("account/users")]
-        [HttpGet]
-        public async Task<IList<UserDto>> GetAllUsers()
-        {
-            return await _userService.GetAllUsers();
-        }
+        //[Route("account/users")]
+        //[HttpGet]
+        //public async Task<IList<UserDto>> GetAllUsers()
+        //{
+        //    return await _userService.GetAllUsers();
+        //}
 
-        [Route("account/tenant/users/get/{tenantId}")]
-        [HttpGet]
-        public async Task<IList<UserDto>> GetTenantUsers(string tenantId)
-        {
-            return await _userService.GetTenantUsers(tenantId);
-        }
+        //[Route("account/tenant/users/get/{tenantId}")]
+        //[HttpGet]
+        //public async Task<IList<UserDto>> GetTenantUsers(string tenantId)
+        //{
+        //    return await _userService.GetTenantUsers(tenantId);
+        //}
 
-        [Route("account/office/users/{officeId}")]
-        [HttpGet]
-        public async Task<IList<UserDto>> GetOfficeUsers(string officeId) // in use
-        {
-            return await _userService.GetOfficeUsers(officeId);
-        }
+        //[Route("account/users/getbyemail/{email}")]
+        //[HttpGet]
+        //public async Task<ActionResult<UserDto>> GetUserByEmail(string email)
+        //{
+        //    return await _userService.GetUserByEmail(email);
+        //}
 
-        [Route("account/users/authcontext")]
-        [HttpGet]
-        public async Task<ActionResult<UserDto>> GetAuthContext()
-        {
-            return await _userService.GetAuthContext();
-        }
+        //[Route("account/users")]
+        //[HttpPost]
+        //public async Task<ActionResult<UserDto>> CreateInitialUser([FromBody] UserDto userDto)
+        //{
+        //    return await _userService.CreateInitialUser(userDto);
+        //}
 
-        [Route("account/users/getbyemail/{email}")]
-        [HttpGet]
-        public async Task<ActionResult<UserDto>> GetUserByEmail(string email)
-        {
-            return await _userService.GetUserByEmail(email);
-        }
-
-        [Route("account/users")]
-        [HttpPost]
-        public async Task<ActionResult<UserDto>> CreateInitialUser([FromBody] UserDto userDto)
-        {
-            return await _userService.CreateInitialUser(userDto);
-        }
+        //[Route("account/users/delete/{userId}")]
+        //[HttpDelete]
+        //public async Task<ActionResult<string>> DeleteUser(string userId)
+        //{
+        //    return await _userService.DeleteUser(userId);
+        //}
 
         [Route("account/users/{officeId}")] // in use
         [HttpPut]
@@ -78,14 +71,23 @@ namespace Web.Controllers.Api.Accounts
         public async Task<ActionResult<UserDto>> CreateUser([FromBody] UserDto userDto, string officeId) // in use
         {
             return await _userService.CreateUser(userDto, officeId);
-        }        
-
-        [Route("account/users/delete/{userId}")]
-        [HttpDelete]
-        public async Task<ActionResult<string>> DeleteUser(string userId)
-        {
-            return await _userService.DeleteUser(userId);
         }
+
+        [Route("account/office/users/{officeId}")]// in use
+        [HttpGet]
+        public async Task<IList<UserDto>> GetOfficeUsers(string officeId)
+        {
+            return await _userService.GetOfficeUsers(officeId);
+        }
+
+        [Route("account/users/authcontext")] // in use
+        [HttpGet]
+        public async Task<ActionResult<UserDto>> GetAuthContext()
+        {
+            return await _userService.GetAuthContext();
+        }
+
+       
 
         #endregion
 
@@ -176,20 +178,26 @@ namespace Web.Controllers.Api.Accounts
             return await _userService.GetOfficeRoles(officeId);
         }
 
-        [Route("account/roles/create")]
+        [Route("account/roles/{officeId}")] // in use
         [HttpPost]
-        public async Task<ActionResult<RoleDto>> CreateRole([FromBody] RoleDto roleDto)
+        public async Task<ActionResult<RoleDto>> CreateRole([FromBody] RoleDto roleDto, string officeId)
         {
-            return await _userService.CreateRole(roleDto);
+            return await _userService.CreateRole(roleDto, officeId);
         }
 
-        [Route("account/roles/user/{officeId}/{userId}/{roleId}")]
-        [HttpPost]
-        public async Task<ActionResult<UserDto>> UpdateRoleUser(string officeId, string userId, string roleId)
+        [Route("account/roles/{officeId}")] // in use
+        [HttpPut]
+        public async Task<ActionResult<RoleDto>> UpdateRole([FromBody] RoleDto roleDto, string officeId)
         {
-            return await _userService.UpdateRoleUser(officeId, userId, roleId);
+            return await _userService.UpdateRole(roleDto, officeId);
         }
 
+        [Route("account/roles/{officeId}/{roleId}")] // in use
+        [HttpDelete]
+        public async Task<ActionResult<RoleDto>> DeleteRole(string officeId, string roleId)
+        {
+            return await _userService.DeleteRole(officeId, roleId);
+        }
         #endregion
 
         #region EntityType part

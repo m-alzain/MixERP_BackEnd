@@ -1,5 +1,7 @@
 ﻿using ApplicationCore.Entities.Accounts;
+using ApplicationCore.Entities.Auth;
 using Contracts.Accounts;
+using Contracts.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,7 @@ namespace ApplicationCore.Utilities.Extensions
     {
         public static void MappTenantDto(this Tenant tenant, TenantDto tenantDto)
         {
+            //tenant.Id = tenantDto.Id;
             tenant.TenantCode = tenantDto.TenantCode;
             tenant.TenantName = tenantDto.TenantName;
             tenant.RegistrationDate = tenantDto.RegistrationDate;
@@ -27,11 +30,18 @@ namespace ApplicationCore.Utilities.Extensions
             tenant.Email = tenantDto.Email;
             tenant.Url = tenantDto.Url;
             tenant.Logo = tenantDto.Logo;
-            tenant.RegistrationNumber = tenantDto.RegistrationNumber;            
+            tenant.RegistrationNumber = tenantDto.RegistrationNumber;
+
+            tenant.CreatedByUserId = tenantDto.CreatedByUserId;
+            tenant.CreatedOn = tenantDto.CreatedOn;
+            tenant.UpdatedByUserId = tenantDto.UpdatedByUserId;
+            tenant.UpdatedOn = tenantDto.UpdatedOn;           
         }
 
         public static void MappOfficeDto(this Office office, OfficeDto officeDto)
         {
+            //office.Id = officeDto.Id;
+            //office.TenantId = officeDto.TenantId;
             office.OfficeCode = officeDto.OfficeCode;
             office.OfficeName = officeDto.OfficeName;
             office.NickName = officeDto.NickName;
@@ -53,8 +63,42 @@ namespace ApplicationCore.Utilities.Extensions
             office.ParentOfficeId = officeDto.ParentOfficeId;
             office.RegistrationNumber = officeDto.RegistrationNumber;
             office.PanNumber = officeDto.PanNumber;
-            office.AllowTransactionPosting = officeDto.AllowTransactionPosting;            
+            office.AllowTransactionPosting = officeDto.AllowTransactionPosting;
 
+            office.CreatedByUserId = officeDto.CreatedByUserId;
+            office.CreatedOn = officeDto.CreatedOn;
+            office.UpdatedByUserId = officeDto.UpdatedByUserId;
+            office.UpdatedOn = officeDto.UpdatedOn;
+
+        }
+
+        public static void MappRoleDto(this Role role, RoleDto roleDto)
+        {
+            //role.Id = roleDto.Id;
+            //role.OfficeId = roleDto.OfficeId;
+            role.RoleName = roleDto.RoleName;
+            role.IsAdministrator = roleDto.IsAdministrator;
+            role.Deleted = roleDto.Deleted;
+            
+            role.CreatedByUserId = roleDto.CreatedByUserId;
+            role.CreatedOn = roleDto.CreatedOn;
+            role.UpdatedByUserId = roleDto.UpdatedByUserId;
+            role.UpdatedOn = roleDto.UpdatedOn;
+        }
+
+        public static void MappGroupEntityAccessPolicyDto(this GroupEntityAccessPolicy groupEntityAccessPolicy, GroupEntityAccessPolicyDto groupEntityAccessPolicyDto)
+        {
+            //groupEntityAccessPolicy.Id = groupEntityAccessPolicyDto.Id;
+            groupEntityAccessPolicy.EntityTypeId = groupEntityAccessPolicyDto.EntityTypeId;
+            groupEntityAccessPolicy.RoleId = groupEntityAccessPolicyDto.RoleId;
+            groupEntityAccessPolicy.AllowAccess = groupEntityAccessPolicyDto.AllowAccess;
+            groupEntityAccessPolicy.AccessType = groupEntityAccessPolicyDto.AccessType;
+            groupEntityAccessPolicy.Deleted = groupEntityAccessPolicyDto.Deleted;
+
+            groupEntityAccessPolicy.CreatedByUserId = groupEntityAccessPolicyDto.CreatedByUserId;
+            groupEntityAccessPolicy.CreatedOn = groupEntityAccessPolicyDto.CreatedOn;
+            groupEntityAccessPolicy.UpdatedByUserId = groupEntityAccessPolicyDto.UpdatedByUserId;
+            groupEntityAccessPolicy.UpdatedOn = groupEntityAccessPolicyDto.UpdatedOn;
         }
     }
 }

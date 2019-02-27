@@ -110,7 +110,12 @@ namespace Infrastructure.Data
         {
             _dbContext.Set<T>().Remove(entity);
         }
-              
+
+        public void DeleteRange(ICollection<T> entities)
+        {
+            _dbContext.Set<T>().RemoveRange(entities);
+        }
+
         public async Task SaveAsync()
         {
             await _dbContext.SaveChangesAsync();

@@ -399,70 +399,139 @@ namespace ApplicationCore.Services.Accounts
 
         #region Role part
 
-        public async Task<IList<RoleDto>> GetAllRoles()
-        {
-            return await _roleRepository.List().Include(r => r.GroupEntityAccessPolicies).ProjectTo<RoleDto>().ToListAsync();
-        }
+        //public async Task<IList<RoleDto>> GetAllRoles()
+        //{
+        //    return await _roleRepository.List().Include(r => r.GroupEntityAccessPolicies).ProjectTo<RoleDto>().ToListAsync();
+        //}
 
-        public Task<IList<RoleDto>> GetTenantRoles(string tenantId)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<IList<RoleDto>> GetTenantRoles(string tenantId)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<IList<RoleDto>> GetOfficeRoles(string officeId) // in use
         {
-            return await _roleRepository.List().Include(r => r.GroupEntityAccessPolicies).Where(r => r.OfficeId == _authContext.CurrentOffice.Id).ProjectTo<RoleDto>().ToListAsync();
+            return await _roleRepository.List().Include(r => r.GroupEntityAccessPolicies).ThenInclude(g => g.EntityType).Where(r => r.OfficeId == _authContext.CurrentOffice.Id).ProjectTo<RoleDto>().ToListAsync();
         }
 
-        public async Task<RoleDto> GetRole(string roloeId)
+        public async Task<RoleDto> GetRole(string roloeId) // in use
         {
-            return _mapper.Map<RoleDto>(await _roleRepository.List().Include(r => r.GroupEntityAccessPolicies).FirstOrDefaultAsync(t => t.Id == Guid.Parse(roloeId)));
+            return _mapper.Map<RoleDto>(await _roleRepository.List().Include(r => r.GroupEntityAccessPolicies).ThenInclude(g => g.EntityType).FirstOrDefaultAsync(t => t.Id == Guid.Parse(roloeId)));
         }
 
-        public async Task<RoleDto> CreateRole(RoleDto roleDto)
-        {
-            ValidateRole(roleDto);
-            var userId = "d352c6eb-8ead-449d-8bb1-da7eda819c8d";
-            var user = await _userRepository.GetByIdAsync(Guid.Parse(userId));
+        public async Task<RoleDto> CreateRole(RoleDto roleDto, string officeId) // in use
+        {            
+            var existingRole = await _roleRepository.List().FirstOrDefaultAsync(r => r.RoleName.Equals(roleDto.RoleName,StringComparison.OrdinalIgnoreCase) && r.OfficeId == _authContext.CurrentOffice.Id);
+            if (existingRole != null)
+            {
+                throw new Exception("The office already has a role with the same name.");
+            }
+            var groupPolicyDtos = (roleDto.GroupEntityAccessPolicies == null || !roleDto.GroupEntityAccessPolicies.Any()) ? new List<GroupEntityAccessPolicyDto>() : roleDto.GroupEntityAccessPolicies;
+            roleDto.GroupEntityAccessPolicies = null; // unable to set the automapper to ignore this list; so it ends up added twice during the save.
 
             var role = _mapper.Map<Role>(roleDto);
+            role.OfficeId = _authContext.CurrentOffice.Id;
             role = _roleRepository.Add(role);
-            
+
+            foreach (var groupPolicyDto in groupPolicyDtos)
+            {
+
+                groupPolicyDto.RoleId = role.Id;
+                groupPolicyDto.EntityType = null;
+                var groupPolicy = _mapper.Map<GroupEntityAccessPolicy>(groupPolicyDto);
+                groupPolicy = _groupEntityAccessPolicyRepository.Add(groupPolicy);                
+            }
+
             await _roleRepository.SaveAsync();
 
             return await GetRole(role.Id.ToString());
+
         }
 
-        
-
-        public async Task<UserDto> UpdateRoleUser(string officeId, string userId, string roleId)
+        public async Task<RoleDto> UpdateRole(RoleDto roleDto, string officeId) // in use
         {
-            // a user should has at most one role for an office 
-            var role = _roleRepository.List().FirstOrDefault(r => r.OfficeId == _authContext.CurrentOffice.Id && r.Id == Guid.Parse(roleId));
-            var user = _officeUserRepository.List().FirstOrDefault(ou => ou.OfficeId == _authContext.CurrentOffice.Id && ou.UserId == Guid.Parse(userId));
-            if (role == null)
+            /////https://github.com/aspnet/EntityFrameworkCore/issues/10954
+            //https://github.com/AutoMapper/AutoMapper/issues/1792
+            //https://github.com/AutoMapper/AutoMapper/issues/1695
+
+            var existingRole = await _roleRepository.List().FirstOrDefaultAsync(r => r.RoleName.Equals(roleDto.RoleName, StringComparison.OrdinalIgnoreCase) && r.OfficeId == _authContext.CurrentOffice.Id && r.Id != roleDto.Id);
+            if (existingRole != null)
             {
-                throw new Exception("The Office doesn't has such role.");
+                throw new Exception("The office already has a role with the same name.");
             }
-            if (user == null)
-            {
-                throw new Exception("The Office doesn't has such user.");
-            }
-            var roleUser = _roleUserRepository.List().Include(ru => ru.Role).Where(ru => ru.UserId == Guid.Parse(userId) && ru.Role.OfficeId == _authContext.CurrentOffice.Id).FirstOrDefault();
-            if(roleUser != null)
-            {
-                _roleUserRepository.Delete(roleUser);
-            }
-              
-            _roleUserRepository.Add(new RoleUser { UserId = Guid.Parse(userId), RoleId = Guid.Parse(roleId) });
-            await _roleRepository.SaveAsync();
             
-            return (await GetOfficeUsers(_authContext.CurrentOffice.Id.ToString())).First(u => u.Id == Guid.Parse(userId));
+            var role = await _roleRepository.List().Include(t => t.GroupEntityAccessPolicies).FirstOrDefaultAsync(t => t.Id == roleDto.Id);
+            var groupPolicyDtos = (roleDto.GroupEntityAccessPolicies == null || !roleDto.GroupEntityAccessPolicies.Any()) ? new List<GroupEntityAccessPolicyDto>() : roleDto.GroupEntityAccessPolicies;
+            //_mapper.Map<RoleDto,Role>(roleDto, role);
+            role.MappRoleDto(roleDto);
+            _roleRepository.Update(role);
+            _groupEntityAccessPolicyRepository.DeleteRange(role.GroupEntityAccessPolicies);
+
+            if(!roleDto.IsAdministrator)
+            {
+                // make sure that an office has at least one admin
+                var otherAdminRole = await _roleRepository.List().FirstOrDefaultAsync(r => r.Id != roleDto.Id && r.OfficeId == _authContext.CurrentOffice.Id && r.IsAdministrator);
+                if (otherAdminRole == null)
+                {
+                    throw new Exception("The office should has at least one admin.");
+                }
+                foreach (var groupPolicyDto in groupPolicyDtos)
+                {
+                    groupPolicyDto.RoleId = role.Id;
+                    groupPolicyDto.EntityType = null;
+                    var groupPolicy = _mapper.Map<GroupEntityAccessPolicy>(groupPolicyDto);
+                    groupPolicy = _groupEntityAccessPolicyRepository.Add(groupPolicy);
+                }
+            }
+            
+            await _roleRepository.SaveAsync();
+            return await GetRole(role.Id.ToString());
         }
 
-        public Task<string> DeleteRole(string roleId)
+
+
+        //public async Task<UserDto> UpdateRoleUser(string officeId, string userId, string roleId)
+        //{
+        //    // a user should has at most one role for an office 
+        //    var role = _roleRepository.List().FirstOrDefault(r => r.OfficeId == _authContext.CurrentOffice.Id && r.Id == Guid.Parse(roleId));
+        //    var user = _officeUserRepository.List().FirstOrDefault(ou => ou.OfficeId == _authContext.CurrentOffice.Id && ou.UserId == Guid.Parse(userId));
+        //    if (role == null)
+        //    {
+        //        throw new Exception("The Office doesn't has such role.");
+        //    }
+        //    if (user == null)
+        //    {
+        //        throw new Exception("The Office doesn't has such user.");
+        //    }
+        //    var roleUser = _roleUserRepository.List().Include(ru => ru.Role).Where(ru => ru.UserId == Guid.Parse(userId) && ru.Role.OfficeId == _authContext.CurrentOffice.Id).FirstOrDefault();
+        //    if(roleUser != null)
+        //    {
+        //        _roleUserRepository.Delete(roleUser);
+        //    }
+              
+        //    _roleUserRepository.Add(new RoleUser { UserId = Guid.Parse(userId), RoleId = Guid.Parse(roleId) });
+        //    await _roleRepository.SaveAsync();
+            
+        //    return (await GetOfficeUsers(_authContext.CurrentOffice.Id.ToString())).First(u => u.Id == Guid.Parse(userId));
+        //}
+
+        public async Task<RoleDto> DeleteRole(string officeId, string roleId)
         {
-            throw new NotImplementedException();
+            var role = await _roleRepository.List().FirstOrDefaultAsync(r => r.Id == Guid.Parse(roleId) && r.OfficeId == _authContext.CurrentOffice.Id);
+            if(role == null)
+            {
+                throw new Exception("The office does not has such role.");
+            }
+            // make sure that an office has at least one admin
+            var otherAdminRole = await _roleRepository.List().FirstOrDefaultAsync(r => r.Id != Guid.Parse(roleId) && r.OfficeId == _authContext.CurrentOffice.Id && r.IsAdministrator);
+            if (otherAdminRole == null)
+            {
+                throw new Exception("The office should has at least one admin.");
+            }
+
+            _roleRepository.Delete(role);
+            await _roleRepository.SaveAsync();
+            return _mapper.Map<RoleDto>(role);
         }
 
         #endregion

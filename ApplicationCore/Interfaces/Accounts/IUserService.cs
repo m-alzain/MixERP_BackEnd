@@ -36,14 +36,12 @@ namespace ApplicationCore.Interfaces.Accounts
         Task<OfficeDto> GetOffice(string officeId);
         Task<OfficeDto> CreateOffice(OfficeDto officeDto);
         Task<string> DeleteOffice(string officeId);
-
-        Task<IList<RoleDto>> GetAllRoles();
-        Task<IList<RoleDto>> GetTenantRoles(string tenantId);
+        
         Task<IList<RoleDto>> GetOfficeRoles(string officeId);
         Task<RoleDto> GetRole(string roloeId);
-        Task<RoleDto> CreateRole(RoleDto roleDto);
-        Task<UserDto> UpdateRoleUser(string officeId, string userId, string roleId );
-        Task<string> DeleteRole(string roleId);
+        Task<RoleDto> CreateRole(RoleDto roleDto, string officeId);
+        Task<RoleDto> UpdateRole(RoleDto roleDto, string officeId);
+        Task<RoleDto> DeleteRole(string roleId, string officeId);
 
         Task<IList<EntityTypeDto>> GetAllEntityTypes();
         Task<EntityTypeDto> GetEntityType(string entityTypeId);
