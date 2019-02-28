@@ -152,19 +152,20 @@ namespace Web.Controllers.Api.Accounts
         {
             return await _userService.GetUserOffices(userId);
         }
+       
 
-        [Route("account/offices/create")]
+        [Route("account/officeusers/{officeId}")] // in use
         [HttpPost]
-        public async Task<ActionResult<OfficeDto>> CreateOffice([FromBody] OfficeDto officeDto)
-        {
-            return await _userService.CreateOffice(officeDto);
-        }
-
-        [Route("account/officeusers/{officeId}")]
-        [HttpPost]
-        public async Task<ActionResult<UserDto>> AddOfficeUser(UserDto userDto, string officeId) // in use
+        public async Task<ActionResult<UserDto>> AddOfficeUser([FromBody] UserDto userDto, string officeId) // in use
         {
             return await _userService.AddOfficeUser(userDto, officeId);
+        }
+
+        [Route("account/officeusers/{officeId}/{userId}")] // in use
+        [HttpDelete]
+        public async Task<ActionResult<UserDto>> DeleteOfficeUser(string officeId, string userId)
+        {
+            return await _userService.DeleteOfficeUser(officeId, userId);
         }
 
         #endregion

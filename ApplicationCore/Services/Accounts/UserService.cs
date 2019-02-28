@@ -87,12 +87,12 @@ namespace ApplicationCore.Services.Accounts
         }
 
 
-        public async Task<UserDto> GetUserByEmail(string email)
+        public async Task<UserDto> GetUserByEmail(string email) // in use
         {
             return _mapper.Map<UserDto>(await _userRepository.List().Include(u => u.OfficeUsers).ThenInclude(ou => ou.Office).Include(u => u.RoleUsers).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)));
         }
 
-        public async Task<UserDto> GetAuthContext()
+        public async Task<UserDto> GetAuthContext() // in use
         {
             return await Task.FromResult(_authContext.CurrentUser);
         }
@@ -351,42 +351,70 @@ namespace ApplicationCore.Services.Accounts
             return _mapper.Map<OfficeDto>(await _officeRepository.List().Include(u => u.Tenant).Include(o => o.ParentOffice).FirstOrDefaultAsync(t => t.Id == Guid.Parse(officeId)));
         }
 
-        public async Task<OfficeDto> CreateOffice(OfficeDto officeDto)
-        {
-            ValidateOffice(officeDto);
-            var userId = "FDDFF607-9C87-4CBC-93F9-8544D4B04B62";
-            var user = await _userRepository.GetByIdAsync(Guid.Parse(userId));
-                      
-            officeDto.Id = Guid.NewGuid();
-            officeDto.UpdatedOn = DateTimeOffset.Now;
-            var office = _mapper.Map<Office>(officeDto);
-            office = _officeRepository.Add(office);
-            // the current user would be added to the office; so that the office at least has one user
-            // when we add Roles in the future this user would be the admin of the office
-            _officeUserRepository.Add(new OfficeUser { User = user, Office = office });
-
-            var adminRole = new Role { RoleName = $"Admin of {officeDto.OfficeName}", IsAdministrator = true, OfficeId = office.Id };
-            _roleRepository.Add(adminRole);
-
-            _roleUserRepository.Add(new RoleUser { User = user, Role = adminRole });
-
-            await _tenantRepository.SaveAsync();
-
-            return await GetOffice(office.Id.ToString());
-        }
-
         public async Task<UserDto> AddOfficeUser(UserDto userDto, string officeId)  // in use
-        {
-            var existingUser = await _userRepository.List().Where(u => u.Email.Equals(userDto.Email, StringComparison.OrdinalIgnoreCase)).FirstOrDefaultAsync();
-            if (existingUser == null)
+        {                      
+            var roleId = userDto.Roles.FirstOrDefault()?.Id;
+            var role = (roleId != null) ? _roleRepository.List().FirstOrDefault(r => r.OfficeId == _authContext.CurrentOffice.Id && r.Id == roleId) : null;
+
+            var user = await _userRepository.List().Include(u => u.OfficeUsers).FirstOrDefaultAsync(u => u.Email.Equals(userDto.Email, StringComparison.OrdinalIgnoreCase));
+            if (user != null)
+            {               
+                if (user.OfficeUsers.FirstOrDefault(ou => ou.OfficeId == _authContext.CurrentOffice.Id) != null)
+                {
+                    throw new Exception("This user already added to the office.");
+                }
+
+                _officeUserRepository.Add(new OfficeUser { OfficeId = _authContext.CurrentOffice.Id, UserId = user.Id });
+                if (role != null)
+                {
+                    var roleUser = _roleUserRepository.List().Include(ru => ru.Role).Where(ru => ru.UserId == user.Id && ru.Role.OfficeId == _authContext.CurrentOffice.Id).FirstOrDefault();
+                    if (roleUser != null)
+                    {
+                        _roleUserRepository.Delete(roleUser);
+                    }
+
+                    _roleUserRepository.Add(new RoleUser { UserId = user.Id, RoleId = role.Id });
+                }
+                await _userRepository.SaveAsync();
+                return (await GetOfficeUsers(_authContext.CurrentOffice.Id.ToString())).First(u => u.Id == user.Id);
+            }
+            else
             {
-                throw new Exception("This user does not exist; you can create him.");
+                throw new Exception("The user does not exist");
             }
 
-            _officeUserRepository.Add(new OfficeUser { UserId = userDto.Id, OfficeId = _authContext.CurrentOffice.Id });
+        }
 
-            await _userRepository.SaveAsync();
-            return _mapper.Map<UserDto>(await _userRepository.GetByIdAsync(userDto.Id));
+        public async Task<UserDto> DeleteOfficeUser(string officeId, string userId)  // in use
+        {
+           
+            var user = await _userRepository.List().Include(u => u.OfficeUsers).Include(u => u.RoleUsers).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId));
+            if (user != null)
+            {
+                if (user.RoleUsers.FirstOrDefault(ru => ru.Role.OfficeId == _authContext.CurrentOffice.Id && ru.Role.IsAdministrator) != null)
+                {
+                    throw new Exception("Admin can not be deleted.");
+                }
+
+                var officeUser = user.OfficeUsers.FirstOrDefault(ru => ru.OfficeId == _authContext.CurrentOffice.Id);
+                var roleUser = user.RoleUsers.FirstOrDefault(ru => ru.Role.OfficeId == _authContext.CurrentOffice.Id);
+                if(officeUser != null)
+                {
+                    _officeUserRepository.Delete(officeUser);
+                }
+                if (roleUser != null)
+                {
+                    _roleUserRepository.Delete(roleUser);
+                }
+               
+                await _userRepository.SaveAsync();
+                return _mapper.Map<UserDto>(user);
+            }
+            else
+            {
+                throw new Exception("The user does not exist");
+            }
+
         }
 
 
@@ -398,16 +426,6 @@ namespace ApplicationCore.Services.Accounts
         #endregion
 
         #region Role part
-
-        //public async Task<IList<RoleDto>> GetAllRoles()
-        //{
-        //    return await _roleRepository.List().Include(r => r.GroupEntityAccessPolicies).ProjectTo<RoleDto>().ToListAsync();
-        //}
-
-        //public Task<IList<RoleDto>> GetTenantRoles(string tenantId)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         public async Task<IList<RoleDto>> GetOfficeRoles(string officeId) // in use
         {
@@ -515,7 +533,7 @@ namespace ApplicationCore.Services.Accounts
         //    return (await GetOfficeUsers(_authContext.CurrentOffice.Id.ToString())).First(u => u.Id == Guid.Parse(userId));
         //}
 
-        public async Task<RoleDto> DeleteRole(string officeId, string roleId)
+        public async Task<RoleDto> DeleteRole(string officeId, string roleId) // in use
         {
             var role = await _roleRepository.List().FirstOrDefaultAsync(r => r.Id == Guid.Parse(roleId) && r.OfficeId == _authContext.CurrentOffice.Id);
             if(role == null)

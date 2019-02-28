@@ -20,7 +20,6 @@ namespace ApplicationCore.Interfaces.Accounts
         Task<UserDto> CreateInitialUser(UserDto userDto);
         Task<UserDto> UpdateContextUser(UserDto userDto);
         Task<UserDto> UpdateUser(UserDto userDto, string officeId);
-        Task<UserDto> AddOfficeUser(UserDto userDto, string officeId);
         Task<string> DeleteUser(string userId);
 
         Task<IList<TenantDto>> GetAllTenants();
@@ -34,7 +33,8 @@ namespace ApplicationCore.Interfaces.Accounts
         Task<IList<OfficeDto>> GetTenantOffices(string tenantId);
         Task<IList<OfficeDto>> GetUserOffices(string userId);
         Task<OfficeDto> GetOffice(string officeId);
-        Task<OfficeDto> CreateOffice(OfficeDto officeDto);
+        Task<UserDto> AddOfficeUser(UserDto userDto, string officeId);
+        Task<UserDto> DeleteOfficeUser(string userId, string officeId);
         Task<string> DeleteOffice(string officeId);
         
         Task<IList<RoleDto>> GetOfficeRoles(string officeId);
