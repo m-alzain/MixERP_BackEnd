@@ -79,7 +79,7 @@ namespace Infrastructure.Data
             if (entity is IAuditable)  
             {
                 var auditable = entity as IAuditable;
-                if (!(entity is User)) // the current user may add himself for the first time
+                if (_userContext.CurrentUser != null) // the current user may add himself or tenant or office for the first time
                 { 
                     auditable.CreatedByUserId = _userContext.CurrentUser.Id;  
                     auditable.UpdatedByUserId = _userContext.CurrentUser.Id; 
@@ -97,7 +97,7 @@ namespace Infrastructure.Data
             if (entity is IAuditable)
             {
                 var auditable = entity as IAuditable;
-                if (!(entity is User)) // user may need to update himself before setting the context
+                if (_userContext.CurrentUser != null) // user may need to update himself before setting the context
                 {
                     auditable.UpdatedByUserId = _userContext.CurrentUser.Id;
                 }

@@ -20,9 +20,11 @@ namespace Web
             var host = CreateWebHostBuilder(args).Build();
             using (var serviceScope = host.Services.GetService<IServiceScopeFactory>().CreateScope())
             {
-                serviceScope.ServiceProvider.GetService<SqlserverContext>().Database.Migrate();
-            }
-            host.Run();
+                var sqlServerContext = serviceScope.ServiceProvider.GetService<SqlserverContext>();
+                sqlServerContext.Database.Migrate();
+                SeedData.SeedAsync(sqlServerContext);
+            }            
+            host.Run();          
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

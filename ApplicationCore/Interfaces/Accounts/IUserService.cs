@@ -10,8 +10,8 @@ namespace ApplicationCore.Interfaces.Accounts
 {
     public interface IUserService
     {
-        Task<IList<UserDto>> GetAllUsers();
-        Task<IList<UserDto>> GetTenantUsers(string tenantId);
+        //Task<IList<UserDto>> GetAllUsers();
+        //Task<IList<UserDto>> GetTenantUsers(string tenantId);
         Task<IList<UserDto>> GetOfficeUsers(string officeId);
         Task<UserDto> GetUser(string userId);
         Task<UserDto> GetUserByEmail(string email);
@@ -20,7 +20,7 @@ namespace ApplicationCore.Interfaces.Accounts
         Task<UserDto> CreateInitialUser(UserDto userDto);
         Task<UserDto> UpdateContextUser(UserDto userDto);
         Task<UserDto> UpdateUser(UserDto userDto, string officeId);
-        Task<string> DeleteUser(string userId);
+        //Task<string> DeleteUser(string userId);
 
         Task<IList<TenantDto>> GetAllTenants();
         Task<IList<TenantDto>> GetUserTenants();

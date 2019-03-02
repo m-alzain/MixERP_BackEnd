@@ -52,7 +52,7 @@ namespace Infrastructure.Data.Configurations.Accounts
             builder.Property(e => e.TenantCode)
                 .IsRequired()
                 .HasColumnName("tenant_code")
-                .HasMaxLength(12);
+                .HasMaxLength(150);
 
             builder.Property(e => e.TenantName)
                 .IsRequired()

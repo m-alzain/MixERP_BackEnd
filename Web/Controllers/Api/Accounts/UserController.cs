@@ -8,18 +8,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Handlers;
 
 namespace Web.Controllers.Api.Accounts
 {
+    //[Authorize(Policy = "EntityTypePolicy")]
     public class UserController : BaseApiController
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly IUserService _userService;
-        
+        private readonly EntityTypeDto userEntityTypeDto = new EntityTypeDto { EntityName = "Users" };
+        private readonly EntityTypeDto tenantEntityTypeDto = new EntityTypeDto { EntityName = "Tenants" };
+        private readonly EntityTypeDto roleEntityTypeDto = new EntityTypeDto { EntityName = "Roles" };
 
         public UserController(
-            IUserService userService)
+            IUserService userService,
+            IAuthorizationService authorizationService)
         {
             _userService = userService;
+            _authorizationService = authorizationService;
         }
 
         #region User part
@@ -62,22 +69,35 @@ namespace Web.Controllers.Api.Accounts
         [Route("account/users/{officeId}")] // in use
         [HttpPut]
         public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UserDto userDto, string officeId) // in use
-        {
-            return await _userService.UpdateUser(userDto, officeId);
+        {           
+            if (((_authorizationService.AuthorizeAsync(User, userEntityTypeDto, Operations.Edit)).Result).Succeeded)
+            {
+                return await _userService.UpdateUser(userDto, officeId);
+            }
+            throw new UnauthorizedAccessException();
+
         }
 
         [Route("account/users/{officeId}")] // in use
         [HttpPost]
         public async Task<ActionResult<UserDto>> CreateUser([FromBody] UserDto userDto, string officeId) // in use
-        {
-            return await _userService.CreateUser(userDto, officeId);
+        {            
+            if (((_authorizationService.AuthorizeAsync(User, userEntityTypeDto, Operations.Create)).Result).Succeeded)
+            {
+                return await _userService.CreateUser(userDto, officeId);
+            }
+            throw new UnauthorizedAccessException();
         }
 
         [Route("account/office/users/{officeId}")]// in use
         [HttpGet]
         public async Task<IList<UserDto>> GetOfficeUsers(string officeId)
-        {
-            return await _userService.GetOfficeUsers(officeId);
+        {      
+            if (((_authorizationService.AuthorizeAsync(User, userEntityTypeDto, Operations.Read)).Result).Succeeded)
+            {
+                return await _userService.GetOfficeUsers(officeId);
+            }
+            throw new UnauthorizedAccessException();           
         }
 
         [Route("account/users/authcontext")] // in use
@@ -93,7 +113,7 @@ namespace Web.Controllers.Api.Accounts
 
         #region Tenant part
 
-        [Route("account/tenants")]  // for super admin
+        [Route("account/tenants")]  // for super admin. not in use
         [HttpGet]
         public async Task<IList<TenantDto>> GetAllTenants()
         {
@@ -132,40 +152,35 @@ namespace Web.Controllers.Api.Accounts
 
         #region Office part
 
-        [Route("account/offices/get")]
-        [HttpGet]
-        public async Task<IList<OfficeDto>> GetAllOffices()
-        {
-            return await _userService.GetAllOffices();
-        }
-
-        [Route("account/tenant/offices/get/{tenantId}")]
-        [HttpGet]
-        public async Task<IList<OfficeDto>> GetTenantOffices(string tenantId)
-        {
-            return await _userService.GetTenantOffices(tenantId);
-        }               
-
-        [Route("account/user/offices/get/{userId}")]
-        [HttpGet]
-        public async Task<IList<OfficeDto>> GetUserOffices(string userId)
-        {
-            return await _userService.GetUserOffices(userId);
-        }
-       
+        
+        //[Route("account/tenant/offices/get/{tenantId}")]
+        //[HttpGet]
+        //public async Task<IList<OfficeDto>> GetTenantOffices(string tenantId)
+        //{
+        //    return await _userService.GetTenantOffices(tenantId);
+        //}               
+    
 
         [Route("account/officeusers/{officeId}")] // in use
         [HttpPost]
         public async Task<ActionResult<UserDto>> AddOfficeUser([FromBody] UserDto userDto, string officeId) // in use
-        {
-            return await _userService.AddOfficeUser(userDto, officeId);
+        {            
+            if (((_authorizationService.AuthorizeAsync(User, tenantEntityTypeDto, Operations.Edit)).Result).Succeeded)
+            {
+                return await _userService.AddOfficeUser(userDto, officeId);
+            }
+            throw new UnauthorizedAccessException();
         }
 
         [Route("account/officeusers/{officeId}/{userId}")] // in use
         [HttpDelete]
         public async Task<ActionResult<UserDto>> DeleteOfficeUser(string officeId, string userId)
-        {
-            return await _userService.DeleteOfficeUser(officeId, userId);
+        {            
+            if (((_authorizationService.AuthorizeAsync(User, tenantEntityTypeDto, Operations.Edit)).Result).Succeeded)
+            {
+                return await _userService.DeleteOfficeUser(officeId, userId);
+            }
+            throw new UnauthorizedAccessException();
         }
 
         #endregion
@@ -175,33 +190,49 @@ namespace Web.Controllers.Api.Accounts
         [Route("account/roles/{officeId}")] // in use
         [HttpGet]
         public async Task<IList<RoleDto>> GetOfficeRoles(string officeId) 
-        {
-            return await _userService.GetOfficeRoles(officeId);
+        {           
+            if (((_authorizationService.AuthorizeAsync(User, roleEntityTypeDto, Operations.Read)).Result).Succeeded)
+            {
+                return await _userService.GetOfficeRoles(officeId);
+            }
+            throw new UnauthorizedAccessException();
         }
 
         [Route("account/roles/{officeId}")] // in use
         [HttpPost]
         public async Task<ActionResult<RoleDto>> CreateRole([FromBody] RoleDto roleDto, string officeId)
-        {
-            return await _userService.CreateRole(roleDto, officeId);
+        {            
+            if (((_authorizationService.AuthorizeAsync(User, roleEntityTypeDto, Operations.Create)).Result).Succeeded)
+            {
+                return await _userService.CreateRole(roleDto, officeId);
+            }
+            throw new UnauthorizedAccessException();
         }
 
         [Route("account/roles/{officeId}")] // in use
         [HttpPut]
         public async Task<ActionResult<RoleDto>> UpdateRole([FromBody] RoleDto roleDto, string officeId)
-        {
-            return await _userService.UpdateRole(roleDto, officeId);
+        {            
+            if (((_authorizationService.AuthorizeAsync(User, roleEntityTypeDto, Operations.Edit)).Result).Succeeded)
+            {
+                return await _userService.UpdateRole(roleDto, officeId);
+            }
+            throw new UnauthorizedAccessException();
         }
 
         [Route("account/roles/{officeId}/{roleId}")] // in use
         [HttpDelete]
         public async Task<ActionResult<RoleDto>> DeleteRole(string officeId, string roleId)
-        {
-            return await _userService.DeleteRole(officeId, roleId);
+        {            
+            if (((_authorizationService.AuthorizeAsync(User, roleEntityTypeDto, Operations.Delete)).Result).Succeeded)
+            {
+                return await _userService.DeleteRole(officeId, roleId);
+            }
+            throw new UnauthorizedAccessException();
         }
         #endregion
 
-        #region EntityType part
+        #region EntityType part // not in use ; can be cleared
 
         [Route("account/entitytypes/create")]
         [HttpPost]
@@ -218,15 +249,15 @@ namespace Web.Controllers.Api.Accounts
         }
         #endregion
 
-        #region GroupEntityAccessPolicy
+        #region GroupEntityAccessPolicy // not in use ; can be cleared
 
-        [Route("account/grouppolicies/create")]
+        [Route("account/grouppolicies/create")] 
         [HttpPost]
         public async Task<ActionResult<GroupEntityAccessPolicyDto>> CreateGroupEntityAccessPolicy([FromBody] GroupEntityAccessPolicyDto groupEntityAccessPolicyDto)
         {
             return await _userService.CreateGroupEntityAccessPolicy(groupEntityAccessPolicyDto);
         }
 
-        #endregion
+        #endregion  
     }
 }

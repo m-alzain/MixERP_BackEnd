@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(SqlserverContext))]
-    [Migration("20190208163440_InitialCreate")]
+    [Migration("20190302200727_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,12 +75,12 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("NickName")
                         .HasColumnName("nick_name")
-                        .HasMaxLength(50);
+                        .HasMaxLength(150);
 
                     b.Property<string>("OfficeCode")
                         .IsRequired()
                         .HasColumnName("office_code")
-                        .HasMaxLength(12);
+                        .HasMaxLength(150);
 
                     b.Property<string>("OfficeName")
                         .IsRequired()
@@ -318,7 +318,7 @@ namespace Infrastructure.Data.Migrations
                     b.Property<string>("TenantCode")
                         .IsRequired()
                         .HasColumnName("tenant_code")
-                        .HasMaxLength(12);
+                        .HasMaxLength(150);
 
                     b.Property<string>("TenantName")
                         .IsRequired()
@@ -551,7 +551,7 @@ namespace Infrastructure.Data.Migrations
                     b.HasOne("ApplicationCore.Entities.Accounts.Office", "Office")
                         .WithMany("Roles")
                         .HasForeignKey("OfficeId")
-                        .HasConstraintName("FK__rolds__office___31EC6D26");
+                        .HasConstraintName("FK__roles__office___31EC6D26");
 
                     b.HasOne("ApplicationCore.Entities.Accounts.Tenant")
                         .WithMany("Roles")

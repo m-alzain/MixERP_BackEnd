@@ -73,7 +73,7 @@ namespace Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Tenant_id = table.Column<Guid>(nullable: false),
-                    tenant_code = table.Column<string>(maxLength: 12, nullable: false),
+                    tenant_code = table.Column<string>(maxLength: 150, nullable: false),
                     tenant_name = table.Column<string>(maxLength: 150, nullable: false),
                     registration_date = table.Column<DateTime>(type: "date", nullable: true),
                     currency_code = table.Column<string>(maxLength: 12, nullable: true),
@@ -122,9 +122,9 @@ namespace Infrastructure.Data.Migrations
                 {
                     office_id = table.Column<Guid>(nullable: false),
                     tenant_id = table.Column<Guid>(nullable: false),
-                    office_code = table.Column<string>(maxLength: 12, nullable: false),
+                    office_code = table.Column<string>(maxLength: 150, nullable: false),
                     office_name = table.Column<string>(maxLength: 150, nullable: false),
-                    nick_name = table.Column<string>(maxLength: 50, nullable: true),
+                    nick_name = table.Column<string>(maxLength: 150, nullable: true),
                     registration_date = table.Column<DateTime>(type: "date", nullable: true),
                     currency_code = table.Column<string>(maxLength: 12, nullable: true),
                     po_box = table.Column<string>(maxLength: 128, nullable: true),
@@ -237,7 +237,7 @@ namespace Infrastructure.Data.Migrations
                         principalColumn: "user_id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK__rolds__office___31EC6D26",
+                        name: "FK__roles__office___31EC6D26",
                         column: x => x.office_id,
                         principalSchema: "account",
                         principalTable: "offices",

@@ -32,6 +32,8 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Web.Filters;
 using Contracts.Auth;
 using Contracts.Accounts;
+using Web.Middlewares;
+using Web.Handlers;
 
 namespace Web
 {
@@ -102,7 +104,17 @@ namespace Web
                     config.Filters.Add(typeof(AuthContextFilter)); // by type
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver()); // If you need/want all of the JSON output to be in PascalCase
+
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("EntityTypePolicy", policy =>
+            //        policy.Requirements.Add(new EntityTypeRequirement()));                
+            //});
+
+            services.AddScoped<IAuthorizationHandler, OfficeEntityTypeAuthorizationHandler>();
         }
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -115,7 +127,7 @@ namespace Web
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
-            }
+            }           
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -127,7 +139,11 @@ namespace Web
                 .AllowAnyHeader()
                 .AllowAnyMethod());
 
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+
             app.UseAuthentication();
+
+            
 
             app.UseMvc(routes =>
             {

@@ -73,12 +73,12 @@ namespace Infrastructure.Data.Configurations.Accounts
 
             builder.Property(e => e.NickName)
                 .HasColumnName("nick_name")
-                .HasMaxLength(50);
+                .HasMaxLength(150);
 
             builder.Property(e => e.OfficeCode)
                 .IsRequired()
                 .HasColumnName("office_code")
-                .HasMaxLength(12);
+                .HasMaxLength(150);
 
             builder.Property(e => e.OfficeName)
                 .IsRequired()

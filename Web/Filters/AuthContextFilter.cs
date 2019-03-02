@@ -1,6 +1,8 @@
 ﻿using ApplicationCore.Interfaces.Accounts;
 using Contracts.Accounts;
 using Contracts.Auth;
+using Contracts.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
@@ -8,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Handlers;
 
 namespace Web.Filters
 {
@@ -15,11 +18,12 @@ namespace Web.Filters
     {
         private readonly IUserService _userService;
         private readonly AuthContext _authContext;
+        
 
         public AuthContextFilter(IUserService userService, AuthContext userContext)
         {
             _userService = userService;
-            _authContext = userContext;
+            _authContext = userContext;            
         }
 
 
@@ -71,7 +75,7 @@ namespace Web.Filters
             }
             if (officeId != null)
             {
-                currentOffice = currentUser.Offices.First(o => o.Id == Guid.Parse(officeId.ToString()));
+                currentOffice = currentUser.Offices.FirstOrDefault(o => o.Id == Guid.Parse(officeId.ToString()));
             }
             if (currentTenant == null && currentOffice != null  )
             {
@@ -86,6 +90,7 @@ namespace Web.Filters
             _authContext.CurrentTenant = currentTenant;
             _authContext.CurrentOffice = currentOffice;
             _authContext.CurrentRole = currentRole;
+
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
